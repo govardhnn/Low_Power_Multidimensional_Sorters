@@ -5,18 +5,7 @@
 `Published in: 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)` + 
 `DOI: 10.1109/CONECCT57959.2023.10234758`
 
-```
-Abstract:
-Sorting is an essential function widely used in several applications like data centers, and is implemented either on CPU or GPU, 
-which takes several cycles to finish. Improvement in the performance of sorting is achievable through hardware acceleration either
-in FPGA or ASIC. The performance improvement and reduction in power consumption are the goals of researchers implementing sorting 
-algorithms on hardware. The Multi-Dimensional Sorting Algorithm (MDSA) improves the basic Bitonic sorting implementation to find 
-the largest and smallest records at any time throughout the sorting process. In this work, we extend the MDSA for Hybrid and 
-Odd-Even sorters while we also optimize the MDSA sorter architectures for low power using clock gating and index sorting 
-techniques. We present the different MDSA sorter topologies and their low power versions with comparative results. The saed90nm 
-standard cell library was used for implementation and analysis. The bitonic sorter architecture with index sorting and clock gating 
-techniques will reduce the dynamic power by 68.56% in comparison with the conventional MDSA bitonic sorter.
-```
+
 
 `Maturity Level`: Passed Gate Level Simulations with Positive Slack for 50MHz (TODO) + 
 `Collateral`: Verilog Design Files link// , SystemVerilog Layered TestBench link // link:./sdc[Constraints File]
