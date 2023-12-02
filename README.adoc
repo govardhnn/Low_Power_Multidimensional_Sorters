@@ -1,34 +1,52 @@
 == Low_Power_Multidimensional_Sorters
 
-https://ieeexplore.ieee.org/document/10234758[Paper Link]
+=== `Low Power Multidimensional Sorters using Clock Gating and Index Sorting (https://ieeexplore.ieee.org/document/10234758[Paper Link])`
 
-Maturity Level: Passed Gate Level Simulations with Positive Slack
-Provided: Verilog Design Files, SystemVerilog Layered TestBench,
-Constraint File
+`Published in: 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)` + 
+`DOI: 10.1109/CONECCT57959.2023.10234758`
+
+```
+Abstract:
+Sorting is an essential function widely used in several applications like data centers, and is implemented either on CPU or GPU, 
+which takes several cycles to finish. Improvement in the performance of sorting is achievable through hardware acceleration either
+in FPGA or ASIC. The performance improvement and reduction in power consumption are the goals of researchers implementing sorting 
+algorithms on hardware. The Multi-Dimensional Sorting Algorithm (MDSA) improves the basic Bitonic sorting implementation to find 
+the largest and smallest records at any time throughout the sorting process. In this work, we extend the MDSA for Hybrid and 
+Odd-Even sorters while we also optimize the MDSA sorter architectures for low power using clock gating and index sorting 
+techniques. We present the different MDSA sorter topologies and their low power versions with comparative results. The saed90nm 
+standard cell library was used for implementation and analysis. The bitonic sorter architecture with index sorting and clock gating 
+techniques will reduce the dynamic power by 68.56% in comparison with the conventional MDSA bitonic sorter.
+```
+
+`Maturity Level`: Passed Gate Level Simulations with Positive Slack for 50MHz (TODO) + 
+`Collateral`: Verilog Design Files link// , SystemVerilog Layered TestBench link // link:./sdc[Constraints File]
 
 Library: Synopsys 90nm Typical VT (saed90nm_typ.lib)
-link:./sdc[Constraints File] Frequency of operation: 50MHz |Sorter
-Implementation|MDSA designs| |—|—| |Bitonic (24 CAE)
-|link:./rtl/MDSA_bitonic[MDSA_bitonic]
-link:./rtl/MDSA_bitonic_index_merge_unit[MDSA_bitonic_index_merge]
-link:./rtl/MDSA_bitonic_index_pipeline[MDSA_bitonic_index_pipeline]|
-|Hybrid (23 CAE) |link:./rtl/MDSA_hybrid[MDSA_hybrid]
-link:./rtl/MDSA_hybrid_index[MDSA_hybrid_index]| |Odd Even (19 CAE)
-|link:./rtl/MDSA_odd_even[MDSA_OE]
-link:./rtl/MDSA_odd_even_index[MDSA_OE_index]|
 
+|===
+|Sorter Implementation| MDSA designs 
+|Bitonic (24 CAE) |link:./rtl/MDSA_bitonic[MDSA_bitonic] +
+link:./rtl/MDSA_bitonic_index_merge_unit[MDSA_bitonic_index_merge] +
+link:./rtl/MDSA_bitonic_index_pipeline[MDSA_bitonic_index_pipeline] 
+|Hybrid (23 CAE) |link:./rtl/MDSA_hybrid[MDSA_hybrid] +
+link:./rtl/MDSA_hybrid_index[MDSA_hybrid_index]
+|Odd Even (19 CAE) |link:./rtl/MDSA_odd_even[MDSA_OE] +
+link:./rtl/MDSA_odd_even_index[MDSA_OE_index]|
+|===
 Testing Methodology: link:./tb[SystemVerilog Layered Testbench] (for 100
 iterations, using constraints and randomization for generating VCD)
 
-We further applied clock gating to all the above designs for further
-power reduction.
-
-Total 14 Implementations, Lowest Power: MDSA Bitonic with Index and
+ - We further applied clock gating to all the above designs for further
+power reduction. 
+ - Total 14 Implementations, Lowest Power: MDSA Bitonic with Index and
 Clock Gating Lowest Area: MDSA Odd Even with Clock Gating
 
-BTech ECE Capstone Project at PES University, Bangalore | Work done
-from: Jan 2022 to June 2022, approximately 2k lines of total code
+=== Contributing
+If you would like to contribute to the existing designs, (TODO )
 
+=== Licenses
+
+----------------------------------------------------------------------------
 Copyright (c) 2022 Samahith S A and Sai Govardhan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,7 +55,7 @@ in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
-
+  
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
@@ -48,3 +66,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+----------------------------------------------------------------------------
+=== Background of the project
+
+BTech ECE Capstone Project (Team: N-08, Batch of ECE 2023) at PES University, Bangalore +
+Guide: Dr. Sudeendra Kumar K 
