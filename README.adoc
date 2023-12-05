@@ -1,16 +1,16 @@
 == Low_Power_Multidimensional_Sorters
 
-=== `Low Power Multidimensional Sorters using Clock Gating and Index Sorting (https://ieeexplore.ieee.org/document/10234758[Paper Link])`
+=== Low Power Multidimensional Sorters using Clock Gating and Index Sorting (https://ieeexplore.ieee.org/document/10234758[Paper Link])
 
-`Published in: 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)` + 
-`DOI: 10.1109/CONECCT57959.2023.10234758`
+ Published in: 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT) 
+ DOI: 10.1109/CONECCT57959.2023.10234758
 
 
 
-`Maturity Level`: Passed Gate Level Simulations with Positive Slack for 50MHz (TODO) + 
-`Collateral`: Verilog Design Files link// , SystemVerilog Layered TestBench link // link:./sdc[Constraints File]
+Maturity Level: Passed Gate Level Simulations with Positive Slack for 50MHz +
+Collateral: link:./verilog[Verilog Design Files], link:./tb[SystemVerilog Layered TestBench],  link:./sdc[Constraints File]
 
-Library: Synopsys 90nm Typical VT (saed90nm_typ.lib)
+Library Used: Synopsys 90nm Typical VT (saed90nm_typ.lib)
 
 |===
 |Sorter Implementation| MDSA designs 
@@ -27,11 +27,12 @@ iterations, using constraints and randomization for generating VCD)
 
  - We further applied clock gating to all the above designs for further
 power reduction. 
- - Total 14 Implementations, Lowest Power: MDSA Bitonic with Index and
-Clock Gating Lowest Area: MDSA Odd Even with Clock Gating
+ - Total 14 Implementations +
+`Lowest Power`: MDSA Bitonic with Index and Clock Gating + 
+`Lowest Area`: MDSA Odd Even with Clock Gating
 
-=== Contributing
-If you would like to contribute to the existing designs, (TODO )
+//=== Contributing
+//If you would like to contribute to the existing designs, 
 
 === Licenses
 
