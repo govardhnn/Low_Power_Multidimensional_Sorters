@@ -1,0 +1,5 @@
+= Build directory  
+
+Build collateral for Bluespec Examples in `../src`, with collation of generated verilog design and testbench files in `/verilog`
+
+Note that once built, you  can manually copy the required .v files to the `../verilog` directory, to save them for reference.

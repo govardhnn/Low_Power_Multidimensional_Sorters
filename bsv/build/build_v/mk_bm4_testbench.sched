@@ -1,0 +1,15 @@
+=== Generated schedule for mk_bm4_testbench ===
+
+Rule schedule
+-------------
+Rule: rl_send_data
+Predicate: bm4.RDY_ma_get_inputs
+Blocking rules: (none)
+ 
+Rule: rl_get_result
+Predicate: bm4.RDY_mav_return_output
+Blocking rules: (none)
+ 
+Logical execution order: rl_send_data, rl_get_result
+
+================================================
