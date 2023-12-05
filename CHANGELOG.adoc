@@ -1,0 +1,12 @@
+== CHANGELOG
+
+	[1.0.0] - 5th December, 2023
+
+	Initial Release of all MDSA collateral
+	- Verilog Designs
+		- MDSA (Bitonic, Bitonic, Hybrid, Odd Even) implementations
+		- Index Sorting Implementation of Each 8 input sorter (+ Bitonic Merge Unit level and Bitonic Pipeline level index sorting)
+		- CAE and CAE index implementation
+	- Basic Verilog Testbenches
+	- System Verilog Layered Testbench
+	- Constraints File
