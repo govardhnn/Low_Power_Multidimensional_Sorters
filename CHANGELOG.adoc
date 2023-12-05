@@ -1,6 +1,6 @@
 == CHANGELOG
 
-	[1.0.0] - 5th December, 2023
+`[1.0.0] - 5th December, 2023`
 
 	Initial Release of all MDSA collateral
 	- Verilog Designs
