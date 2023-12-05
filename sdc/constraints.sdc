@@ -4,7 +4,7 @@ set_units -time 1.0ns ;
 
 #set_units -capacitance 1.0pF ;
 
-set EXTCLK_PERIOD 100.0; #10MHz
+set EXTCLK_PERIOD 20.0; #10MHz
 
 create_clock -name "$EXTCLK" -period  "$EXTCLK_PERIOD"  -waveform "0 [expr $EXTCLK_PERIOD/2]" [get_ports clk]
 
