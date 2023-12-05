@@ -1,4 +1,4 @@
 *.vcd
 *_vsim
 bsv/build/build_v
-bsv/build/out
+bsv/build/verilog_dir
