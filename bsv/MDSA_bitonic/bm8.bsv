@@ -43,8 +43,8 @@ Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
         cae_stage_6[lp_i] <- mk_cae();
     end
 
-    PIPE pipe[6];
-    for (Integer lp_i = 0; lp_i < 6; lp_i = lp_i + 1) begin
+    PIPE pipe[4];
+    for (Integer lp_i = 0; lp_i < 4; lp_i = lp_i + 1) begin
         pipe[lp_i].v_rg <- replicateM(mkReg(0));
     end
 
