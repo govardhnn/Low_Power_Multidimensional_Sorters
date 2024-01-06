@@ -25,10 +25,6 @@ module mk_bm8_testbench(Empty);
              
         let lv_out <- bm8.mav_return_outputs();
 
-        // let lv_out_0_to_3 <- bm8.mav_return_outputs_0_to_3();
-        // let lv_out_4_to_7 <- bm8.mav_return_outputs_4_to_7();
-        // $display(" -- TB -- Output is %0d %0d %0d %0d %0d %0d %0d %0d", tpl_1(lv_out), tpl_2(lv_out), tpl_3(lv_out), tpl_4(lv_out), tpl_5(lv_out), tpl_6(lv_out), tpl_7(lv_out), tpl_8(lv_out));
-        // $display("lv_out is %0d and %0d", lv_out_0_to_3, lv_out_4_to_7);
         $display(" -- TB - Got data: %0d %0d %0d %0d %0d %0d %0d %0d", tpl_1(lv_out), tpl_2(lv_out), tpl_3(lv_out), tpl_4(lv_out), tpl_5(lv_out), tpl_6(lv_out), tpl_7(lv_out), tpl_8(lv_out));
         $finish;
     endrule

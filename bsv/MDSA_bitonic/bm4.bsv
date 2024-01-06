@@ -35,7 +35,7 @@ module mk_bm4(Ifc_bm4);
       pipe[1].v_rg[1]<= tpl_1(lv_get_sort_4);
       pipe[1].v_rg[2] <= tpl_2(lv_get_sort_4);
       pipe[1].v_rg[3] <= tpl_2(lv_get_sort_3);
-      $display("     BM4 Stage 1 outputs / STAGE 2 inputs: %0d, %0d, %0d, %0d", pipe[1].v_rg[0], pipe[1].v_rg[1], pipe[1].v_rg[2], pipe[1].v_rg[3]);
+      // $display("     BM4 Stage 1 outputs / STAGE 2 inputs: %0d, %0d, %0d, %0d", pipe[1].v_rg[0], pipe[1].v_rg[1], pipe[1].v_rg[2], pipe[1].v_rg[3]);
       rg_stage <= STAGE_2;
    endrule
 
@@ -52,8 +52,11 @@ module mk_bm4(Ifc_bm4);
 
    method ActionValue#(Tuple4#(int, int, int, int)) mav_return_output () if (rg_stage == STAGE_2); 
       $display("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[1].v_rg[0], pipe[1].v_rg[1], pipe[1].v_rg[2], pipe[1].v_rg[3]);
+      
       let lv_get_sort_5 = cae[4].mv_get_sort(pipe[1].v_rg[0], pipe[1].v_rg[1]);
+
       let lv_get_sort_6 = cae[5].mv_get_sort(pipe[1].v_rg[2], pipe[1].v_rg[3]);
+      
       rg_stage <= INIT;
       return (tuple4(tpl_1(lv_get_sort_5), tpl_2(lv_get_sort_5), tpl_1(lv_get_sort_6), tpl_2(lv_get_sort_6)));
    endmethod
