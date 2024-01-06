@@ -1,3 +1,5 @@
+// Obsolete: This package is no longer used. Kept here for reference purpouse sonly.
+
 package bm4;
 
 import cae :: *;

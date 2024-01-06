@@ -1,6 +1,8 @@
-Hardware Sorter Architecture design exploration in BSV
+Hardware Sorter Architecture design exploration in BSV.
 
 	 1. CAE (Compare And Exchange block)
        	    This is a purely combinational circuit that sorts two inputs (a and b) to ascending order
-	 2. BM2 Unit
+	 2. BM4 Unit (Bitonic Merge 4 Input Sorter)
        	    A 4 input Bitonic Merge Unit that contains 6 CAE blocks, arranged in a network such that the four inputs pass through three pipelined stages before providing the final sorted output
+	 3. Bitonic Sorting Unit
+	 		An 8 input Bitonic Merge Unit that contains 6 Pipeline Stages and 24 CAE Blocks in total. 
