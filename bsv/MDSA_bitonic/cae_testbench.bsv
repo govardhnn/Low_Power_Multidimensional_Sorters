@@ -27,7 +27,7 @@ import mdsa_types :: *;
 
 (* synthesize *)
 module mk_cae_testbench (Empty);
-   
+
    Ifc_cae cae_inst <- mk_cae();
 
    Reg#(CAE) rg_cae <- mkReg(unpack(0));
@@ -35,7 +35,7 @@ module mk_cae_testbench (Empty);
 
    rule rl_init (True);
       CAE init_cae = unpack(0);
-      for (Bit#(32) i = 0; i < 2; i = i + 1) begin
+      for (Bit#(WordLength) i = 0; i < 2; i = i + 1) begin
          init_cae.inputs[i] = 2 - i;
       end
       rg_cae <= init_cae;
