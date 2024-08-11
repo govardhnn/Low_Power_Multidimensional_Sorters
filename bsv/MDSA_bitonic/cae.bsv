@@ -22,16 +22,23 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package cae;
 
+import mdsa_types :: *;
+import Vector ::*;
+
 interface Ifc_cae;
-   method Tuple2#(int, int) mv_get_sort (int a, int b);
+   method CAE mv_get_sort (CAE inputs);
 endinterface
 
 (* synthesize *)
 module mk_cae (Ifc_cae);
+   method CAE mv_get_sort (CAE cae);
+   
+      if(cae.inputs[0] > cae.inputs[1]) begin
+         cae.inputs = reverse(cae.inputs);
+         return (cae);
+      end
 
-   method Tuple2#(int, int) mv_get_sort (int a, int b);
-      if(a > b) return (tuple2(b,a));
-      else return (tuple2(a,b));
+      else return (cae);
    endmethod
 
 endmodule

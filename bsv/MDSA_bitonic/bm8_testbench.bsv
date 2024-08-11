@@ -23,24 +23,33 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package bm8_testbench;
 
 import bm8 :: *;
+import mdsa_types :: *;
 
 (*synthesize*)
 module mk_bm8_testbench(Empty);
 
-    Reg#(int) rg_in_1 <- mkReg(7);
-    Reg#(int) rg_in_2 <- mkReg(6);
-    Reg#(int) rg_in_3 <- mkReg(5);
-    Reg#(int) rg_in_4 <- mkReg(4);
-    Reg#(int) rg_in_5 <- mkReg(3);
-    Reg#(int) rg_in_6 <- mkReg(2);
-    Reg#(int) rg_in_7 <- mkReg(1);
-    Reg#(int) rg_in_8 <- mkReg(0);
+    // Reg#(int) rg_in_1 <- mkReg(7);
+    // Reg#(int) rg_in_2 <- mkReg(6);
+    // Reg#(int) rg_in_3 <- mkReg(5);
+    // Reg#(int) rg_in_4 <- mkReg(4);
+    // Reg#(int) rg_in_5 <- mkReg(3);
+    // Reg#(int) rg_in_6 <- mkReg(2);
+    // Reg#(int) rg_in_7 <- mkReg(1);
+    // Reg#(int) rg_in_8 <- mkReg(0);
+
+    Reg#(BM8) rg_bm8_in;
 
     Ifc_bm8 bm8 <- mk_bm8;
 
+    Integer i;
+
+    for (i = 0; i < 8; i = i + 1) begin
+        rg_bm8_in.in[i] <- mkReg(fromInteger(i));
+    end
+
     rule rl_send_data;
-        $display(" -- TB -- Sending data: %0d %0d %0d %0d %0d %0d %0d %0d", rg_in_1, rg_in_2, rg_in_3, rg_in_4, rg_in_5, rg_in_6, rg_in_7, rg_in_8);
-        bm8.ma_get_inputs(rg_in_1, rg_in_2, rg_in_3, rg_in_4, rg_in_5, rg_in_6, rg_in_7, rg_in_8);
+        $display(" -- TB -- Sending data:", fshow(rg_bm8_in));
+        bm8.ma_get_inputs(rg_bm8_in);
     endrule
 
     rule rl_get_result;

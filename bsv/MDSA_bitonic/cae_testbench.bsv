@@ -23,22 +23,33 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package cae_testbench;
 
 import cae :: *;
+import mdsa_types :: *;
 
 (* synthesize *)
 module mk_cae_testbench (Empty);
-
+   
    Ifc_cae cae_inst <- mk_cae();
 
-   Reg#(int) reg_input_1 <- mkReg(9);
-   Reg#(int) reg_input_2 <- mkReg(4);
+   Reg#(CAE) rg_cae <- mkReg(unpack(0));
+   Reg#(Bool) rg_initialized <- mkReg(False);
 
-   rule rl_tb_get_data;
-      $display("Sending data: %0d %0d", reg_input_1, reg_input_2);
-      let lv_numbers = cae_inst.mv_get_sort(reg_input_1, reg_input_2);
-      $display("Received data: %0d %0d", tpl_1(lv_numbers), tpl_2(lv_numbers));   
-      $finish;
+   rule rl_init (True);
+      CAE init_cae = unpack(0);
+      for (Bit#(32) i = 0; i < 2; i = i + 1) begin
+         init_cae.inputs[i] = 2 - i;
+      end
+      rg_cae <= init_cae;
+      rg_initialized <= True;
    endrule
 
+   rule rl_tb_get_data(rg_initialized);
+      $display("Sending data: ", fshow(rg_cae._read));
+
+      let lv_numbers = cae_inst.mv_get_sort(rg_cae._read);
+      $display("Received data: ", fshow(lv_numbers));   
+      
+      $finish;
+   endrule
 
 endmodule
 

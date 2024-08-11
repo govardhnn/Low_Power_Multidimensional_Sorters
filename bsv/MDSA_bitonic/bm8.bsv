@@ -20,18 +20,18 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 */
+
 package bm8;
 
 import bm4 :: *;
 import cae :: *;
 import Vector :: *;
-
-typedef enum {INIT, BM4_INPUT, BM4_DONE, BM8_STAGE_4_DONE, BM8_STAGE_5_DONE, BM8_STAGE_6_DONE} RG_STAGE deriving (Bits, Eq);
+import mdsa_types :: *;
 
 typedef struct {Vector#(8, Reg#(int)) v_rg;} PIPE;
 
 interface Ifc_bm8;
-    method Action ma_get_inputs (int in1, int in2, int in3, int in4, int in5, int in6, int in7, int in8);
+    method Action ma_get_inputs (BM8 bm8_in);
     method ActionValue#(Tuple8#(int, int, int, int, int, int, int, int)) mav_return_outputs;
 endinterface
 
@@ -146,10 +146,10 @@ rule rl_get_outputs_from_bm4 if (rg_stage == BM4_INPUT);
 
  endrule
 
-method Action ma_get_inputs (int in1, int in2, int in3, int in4, int in5, int in6, int in7, int in8) if (rg_stage == INIT);
+method Action ma_get_inputs (BM8 bm8_in) if (rg_stage == INIT);
     
-    bm4[0].ma_get_inputs(in1, in2, in3, in4);
-    bm4[1].ma_get_inputs(in5, in6, in7, in8);
+    bm4[0].ma_get_inputs((bm8_in.in[0]), bm8_in.in[1], bm8_in.in[2], bm8_in.in[3]);
+    bm4[1].ma_get_inputs(bm8_in.in[4], bm8_in.in[5], bm8_in.in[6], bm8_in.in[7]);
     rg_stage <= BM4_INPUT;
 
 endmethod
