@@ -1,12 +1,13 @@
 #!/bin/bash 
 
 # LICENSE="verilog/LICENSE"
-LICENSE="tb/LICENSE"
+# LICENSE="tb/LICENSE"
+LICENSE="bsv/LICENSE"
 
 # change this to *.sv for the systemverilog testbenches license update
 # finds the verilog/sysverilog files and reads them into verilog/sysverilog
 
-find . -name "*.sv" | while read -r sysverilog ; do
+find . -name "*.bsv" | while read -r sysverilog ; do
     # check the directory of the verilog file found in this iteration
     dir=$(dirname $sysverilog) 
     {  
