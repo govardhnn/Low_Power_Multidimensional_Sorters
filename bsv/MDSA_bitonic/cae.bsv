@@ -35,8 +35,10 @@ module mk_cae (Ifc_cae);
    method CAE mv_get_sort (CAE cae);
 
       // Here imma sort the inputs to ascending order
+      // checks if the first element is greater than the second element
       if(cae.inputs[0] > cae.inputs[1]) begin
-         // Vectors has a simple function called reverse - which do exactly what you think it does! :)
+         // Vectors has a simple function called reverse - 
+         // which does exactly what you think it does! - reverse elements :)
          cae.inputs = reverse(cae.inputs);
          return (cae);
       end

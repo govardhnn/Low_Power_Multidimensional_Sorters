@@ -10,6 +10,11 @@ typedef struct {
     Vector#(2, Bit#(WordLength)) inputs;
 } CAE deriving (Bits, Eq, FShow);
 
+// typedef of BM4 inputs
+typedef struct {
+    Vector#(4, Bit#(WordLength)) inputs;
+} BM4 deriving (Bits, Eq, FShow);
+
 
 typedef enum {
     INIT
