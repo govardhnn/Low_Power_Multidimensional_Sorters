@@ -6,9 +6,7 @@ import Vector :: *;
 typedef 32 WordLength;
 
 // typedef of CAE inputs
-typedef struct {
-    Vector#(2, Bit#(WordLength)) inputs;
-} CAE deriving (Bits, Eq, FShow);
+typedef Vector#(2, Bit#(WordLength)) CAE_inputs;
 
 // typedef of BM4 inputs
 typedef struct {

@@ -20,6 +20,7 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 */
+
 package bm4;
 
 import cae :: *;
@@ -80,7 +81,6 @@ module mk_bm4(Ifc_bm4);
       pipe[1].v_rg[1]<= lv_get_sort_3.inputs[1];
       pipe[1].v_rg[2] <= lv_get_sort_4.inputs[0];
       pipe[1].v_rg[3] <= lv_get_sort_4.inputs[1];
-      // $display("     BM4 Stage 1 outputs / STAGE 2 inputs: %0d, %0d, %0d, %0d", pipe[1].v_rg[0], pipe[1].v_rg[1], pipe[1].v_rg[2], pipe[1].v_rg[3]);
       rg_stage <= STAGE_2;
    endrule
 
@@ -97,11 +97,8 @@ module mk_bm4(Ifc_bm4);
 
    method ActionValue#(BM4) mav_return_output () if (rg_stage == STAGE_2); 
       $display("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[1].v_rg[0], pipe[1].v_rg[1], pipe[1].v_rg[2], pipe[1].v_rg[3]);
-      
       let lv_get_sort_5 = cae[4].mv_get_sort(fn_map_cae(pipe[1].v_rg[0], pipe[1].v_rg[1]));
-
-      let lv_get_sort_6 = cae[5].mv_get_sort(fn_map_cae(pipe[1].v_rg[2], pipe[1].v_rg[3]));
-      
+      let lv_get_sort_6 = cae[5].mv_get_sort(fn_map_cae(pipe[1].v_rg[2], pipe[1].v_rg[3]));      
       rg_stage <= INIT;
       return(fn_map_bm4(lv_get_sort_5, lv_get_sort_6));
    endmethod

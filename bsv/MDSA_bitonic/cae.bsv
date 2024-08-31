@@ -27,19 +27,19 @@ import Vector ::*;
 
 interface Ifc_cae;
    // Receive and send back cae inputs (which are two numbers)
-   method CAE mv_get_sort (CAE inputs);
+   method CAE_inputs mav_get_sort (CAE_inputs cae);
 endinterface
 
 (* synthesize *)
-module mk_cae (Ifc_cae);
-   method CAE mv_get_sort (CAE cae);
+module mk_cae(Ifc_cae);
+   method CAE_inputs mav_get_sort (CAE_inputs cae);
 
       // Here imma sort the inputs to ascending order
       // checks if the first element is greater than the second element
-      if(cae.inputs[0] > cae.inputs[1]) begin
+      if(cae[0] > cae[1]) begin
          // Vectors has a simple function called reverse - 
          // which does exactly what you think it does! - reverse elements :)
-         cae.inputs = reverse(cae.inputs);
+         cae = reverse(cae);
          return (cae);
       end
 

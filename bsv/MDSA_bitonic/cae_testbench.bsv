@@ -24,28 +24,22 @@ package cae_testbench;
 
 import cae :: *;
 import mdsa_types :: *;
+import Vector :: *;
 
 (* synthesize *)
 module mk_cae_testbench (Empty);
 
    Ifc_cae cae_inst <- mk_cae();
 
-   Reg#(CAE) rg_cae <- mkReg(unpack(0));
+//   Reg#(CAE) rg_cae <- mkReg(unpack(0));
    Reg#(Bool) rg_initialized <- mkReg(False);
+   CAE_inputs v_cae_test_inputs = map(fromInteger, reverse(genVector));
+   Reg#(CAE_inputs) rg_cae <- mkReg(v_cae_test_inputs);
 
-   rule rl_init (True);
-      CAE init_cae = unpack(0);
-      for (Bit#(WordLength) i = 0; i < 2; i = i + 1) begin
-         init_cae.inputs[i] = 2 - i;
-      end
-      rg_cae <= init_cae;
-      rg_initialized <= True;
-   endrule
+   rule rl_tb_get_data(True);
+      $display("Sending data: ", fshow(rg_cae));
 
-   rule rl_tb_get_data(rg_initialized);
-      $display("Sending data: ", fshow(rg_cae._read));
-
-      let lv_numbers = cae_inst.mv_get_sort(rg_cae._read);
+      let lv_numbers = cae_inst.mav_get_sort(rg_cae);
       $display("Received data: ", fshow(lv_numbers));   
       
       $finish;

@@ -28,14 +28,6 @@ import mdsa_types :: *;
 (*synthesize*)
 module mk_bm8_testbench(Empty);
 
-    // Reg#(int) rg_in_1 <- mkReg(7);
-    // Reg#(int) rg_in_2 <- mkReg(6);
-    // Reg#(int) rg_in_3 <- mkReg(5);
-    // Reg#(int) rg_in_4 <- mkReg(4);
-    // Reg#(int) rg_in_5 <- mkReg(3);
-    // Reg#(int) rg_in_6 <- mkReg(2);
-    // Reg#(int) rg_in_7 <- mkReg(1);
-    // Reg#(int) rg_in_8 <- mkReg(0);
 
     Reg#(BM8) rg_bm8_in;
 
