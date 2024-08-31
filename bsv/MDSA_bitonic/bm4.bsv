@@ -60,17 +60,9 @@ endinterface
 module mk_bm4(Ifc_bm4);
    
    Vector#(2, Ifc_cae) cae <- replicateM(mk_cae());
+   Vector#(2, Reg#(PIPE)) pipe <- replicateM(mkReg(replicate(0)));
 
    Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
-   
-   Vector#(2, Reg#(PIPE)) pipe <- replicateM(mkReg(replicate(0)));
-   
-   rule rl_stage_1(rg_stage == STAGE_1);
-      let lv_get_sort_3 <- fn_cae_dual_sort(cae[0], pipe[0][0], pipe[0][3]);
-      let lv_get_sort_4 <- fn_cae_dual_sort(cae[1], pipe[0][1], pipe[0][2]); 
-      pipe[1] <= cons(lv_get_sort_3[0], cons(lv_get_sort_4[0], cons(lv_get_sort_4[1], cons(lv_get_sort_3[1], nil))));
-      rg_stage <= STAGE_2;
-   endrule
 
    method Action ma_get_inputs (BM4_inputs bm4) if (rg_stage == INIT);
       $display("     BM4 Stage 1 Inputs: Get inputs:", fshow(bm4));
@@ -80,12 +72,12 @@ module mk_bm4(Ifc_bm4);
       rg_stage <= STAGE_1;
    endmethod
 
-   method ActionValue#(BM4_inputs) mav_return_output() if (rg_stage == STAGE_2); 
-      $display("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[1][0], pipe[1][1], pipe[1][2], pipe[1][3]);
-      let lv_get_sort_5 <- fn_cae_dual_sort(cae[0], pipe[1][0], pipe[1][1]);
-      let lv_get_sort_6 <- fn_cae_dual_sort(cae[1], pipe[1][2], pipe[1][3]);      
+   method ActionValue#(BM4_inputs) mav_return_output() if (rg_stage == STAGE_1); 
+      $display("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[0][0], pipe[0][1], pipe[0][2], pipe[0][3]);
+      let lv_get_sort_3 <- fn_cae_dual_sort(cae[0], pipe[0][0], pipe[0][1]);
+      let lv_get_sort_4 <- fn_cae_dual_sort(cae[1], pipe[0][2], pipe[0][3]);      
       rg_stage <= INIT;
-      return fn_cae_to_bm4(lv_get_sort_5, lv_get_sort_6);
+      return fn_cae_to_bm4(lv_get_sort_3, lv_get_sort_4);
    endmethod
 endmodule
 

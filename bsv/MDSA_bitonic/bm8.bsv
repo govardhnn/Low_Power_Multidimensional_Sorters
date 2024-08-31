@@ -32,7 +32,7 @@ typedef struct {Vector#(8, Reg#(int)) v_rg;} PIPE;
 
 interface Ifc_bm8;
     method Action ma_get_inputs (BM8 bm8_in);
-    method ActionValue#(Tuple8#(int, int, int, int, int, int, int, int)) mav_return_outputs;
+    method ActionValue#(BM8) mav_return_outputs;
 endinterface
 
 (*synthesize*)
@@ -42,33 +42,23 @@ Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
 
     // BM4 Stage contains the first three stages of the six stages of Bitonic Sort
 
-    Ifc_bm4 bm4[2];
-    for (Integer lp_i = 0; lp_i < 2; lp_i = lp_i + 1) begin
-        bm4[lp_i] <- mk_bm4();
-    end
+    // Ifc_bm4 bm4[2];
+    // for (Integer lp_i = 0; lp_i < 2; lp_i = lp_i + 1) begin
+    //     bm4[lp_i] <- mk_bm4();
+    // end
 
-    // CAE Blocks for the 4th stage of the Bitonic Sort
-    Ifc_cae cae_stage_4[4];
-    for (Integer lp_i = 0; lp_i < 4; lp_i = lp_i + 1) begin
-        cae_stage_4[lp_i] <- mk_cae();
-    end
+    Vector#(4, Ifc_cae) cae_stage_1 <- replicateM(mk_cae());
 
-    // CAE Blocks for the 5th stage of the Bitonic Sort
-    Ifc_cae cae_stage_5[4];
-    for (Integer lp_i = 0; lp_i < 4; lp_i = lp_i + 1) begin
-        cae_stage_5[lp_i] <- mk_cae();
-    end
+    Vector#(2, Ifc_bm4) bm4_stage_2_3 <- replicateM(mk_bm4());
 
-    // CAE Blocks for the 6th stage of the Bitonic Sort
-    Ifc_cae cae_stage_6[4];
-    for (Integer lp_i = 0; lp_i < 4; lp_i = lp_i + 1) begin
-        cae_stage_6[lp_i] <- mk_cae();
-    end
+    Vector#(4, Ifc_cae) cae_stage_4 <- replicateM(mk_cae());
 
-    PIPE pipe[6];
-    for (Integer lp_i = 0; lp_i < 6; lp_i = lp_i + 1) begin
-        pipe[lp_i].v_rg <- replicateM(mkReg(0));
-    end
+    Vector#(4, Ifc_cae) cae_stage_5 <- replicateM(mk_cae());
+
+    Vector#(4, Ifc_cae) cae_stage_6 <- replicateM(mk_cae());
+
+    Vector#(6, Reg#(PIPE)) pipe <- replicateM(mkReg(replicate(0)));
+
 
 rule rl_get_outputs_from_bm4 if (rg_stage == BM4_INPUT);
 

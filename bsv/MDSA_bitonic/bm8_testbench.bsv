@@ -29,16 +29,13 @@ import mdsa_types :: *;
 module mk_bm8_testbench(Empty);
 
 
-    Reg#(BM8) rg_bm8_in;
+    BM8 initialVector = map(fromInteger, reverse(genVector));
 
+    Reg#(BM8) rg_bm8_in <- mkReg(initialVector);
+    
     Ifc_bm8 bm8 <- mk_bm8;
 
-    Integer i;
-
-    for (i = 0; i < 8; i = i + 1) begin
-        rg_bm8_in.in[i] <- mkReg(fromInteger(i));
-    end
-
+    
     rule rl_send_data;
         $display(" -- TB -- Sending data:", fshow(rg_bm8_in));
         bm8.ma_get_inputs(rg_bm8_in);

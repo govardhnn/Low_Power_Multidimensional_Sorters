@@ -11,6 +11,8 @@ typedef Vector#(2, Bit#(WordLength)) CAE_inputs;
 // typedef of BM4 inputs
 typedef Vector#(4, Bit#(WordLength)) BM4_inputs;
 
+// typedef of BM8 inputs
+typedef Vector#(8, Bit#(WordLength)) BM8_inputs;
 
 typedef enum {
     INIT
