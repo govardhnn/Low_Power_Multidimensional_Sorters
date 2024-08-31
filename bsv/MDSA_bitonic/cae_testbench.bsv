@@ -31,9 +31,8 @@ module mk_cae_testbench (Empty);
 
    Ifc_cae cae_inst <- mk_cae();
 
-//   Reg#(CAE) rg_cae <- mkReg(unpack(0));
-   Reg#(Bool) rg_initialized <- mkReg(False);
    CAE_inputs v_cae_test_inputs = map(fromInteger, reverse(genVector));
+   
    Reg#(CAE_inputs) rg_cae <- mkReg(v_cae_test_inputs);
 
    rule rl_tb_get_data(True);
