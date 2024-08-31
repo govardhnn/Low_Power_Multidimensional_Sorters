@@ -7,7 +7,7 @@ VSIM ?= $(SIM)
 TOPFILE ?= $(FOLDER)/bsv/$(EG)/$(TB_BSV).bsv
 TOPMODULE ?= $(TB_BSV_TOP)
 
-BSC_COMP_FLAGS = -elab -keep-fires -show-schedule -aggressive-conditions -no-warn-action-shadowing
+BSC_COMP_FLAGS = -elab -keep-fires -show-schedule -show-range-conflict -aggressive-conditions -no-warn-action-shadowing
 BSC_LINK_FLAGS = -keep-fires
 BSC_PATHS = -p $(FOLDER)/bsv/$(EG)/:$(FOLDER)/bsv/Common:%/Libraries
 

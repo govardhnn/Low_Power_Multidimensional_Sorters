@@ -9,9 +9,7 @@ typedef 32 WordLength;
 typedef Vector#(2, Bit#(WordLength)) CAE_inputs;
 
 // typedef of BM4 inputs
-typedef struct {
-    Vector#(4, Bit#(WordLength)) inputs;
-} BM4 deriving (Bits, Eq, FShow);
+typedef Vector#(4, Bit#(WordLength)) BM4_inputs;
 
 
 typedef enum {

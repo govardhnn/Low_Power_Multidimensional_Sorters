@@ -37,26 +37,24 @@ module mk_bm4_testbench(Empty);
 
     Ifc_bm4 bm4 <- mk_bm4; 
 
-    Reg#(int) rg_counter <- mkReg(0);
+    Reg#(Bool) rg_sent_bm4_test <- mkReg(False);
 
-    Vector#(4, Bit#(WordLength)) initialVector = map(fromInteger, reverse(genVector));
+    BM4_inputs initialVector = map(fromInteger, reverse(genVector));
 
-    Reg#(Vector#(4, Bit#(WordLength))) rg_bm4_input <- mkReg(initialVector);
+    Reg#(BM4_inputs) rg_bm4_input <- mkReg(initialVector);
 
-    rule rl_send_data(rg_counter < `COUNTER_LIM && !rg_sent_data);
-        // let lv_bm4_input = BM4{inputs: rg_bm4_input};
-        $display(" -- TB -- Sending data: ", rg_bm4_input);
+    rule rl_send_data(!rg_sent_bm4_test);
+        $display(" -- TB -- Sending data: ", fshow(rg_bm4_input));
+
         bm4.ma_get_inputs(rg_bm4_input);
-        rg_counter <= rg_counter + 1;
-        rg_sent_data <= True;
-        if (rg_counter == `COUNTER_LIM - 1) $finish;
+
+        rg_sent_bm4_test <= True;
     endrule
 
-    rule rl_get_result(rg_counter < `COUNTER_LIM && rg_sent_data);
+    rule rl_get_result(rg_sent_bm4_test);
         let lv_out <- bm4.mav_return_output();
         $display(" -- TB -- Output is", fshow(lv_out));
-        rg_sent_data <= False;
-        if (rg_counter == `COUNTER_LIM - 1) $finish;
+        $finish;
     endrule
 
 endmodule

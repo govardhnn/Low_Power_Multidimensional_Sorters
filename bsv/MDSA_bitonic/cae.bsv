@@ -26,23 +26,23 @@ import mdsa_types :: *;
 import Vector ::*;
 
 interface Ifc_cae;
-   // Receive and send back cae inputs (which are two numbers)
-   method CAE_inputs mav_get_sort (CAE_inputs cae);
+   // Receive and send back cae inputs (which are two numbers) -- in ascending order
+   method ActionValue#(CAE_inputs) mav_get_sort (CAE_inputs cae);
 endinterface
 
 (* synthesize *)
 module mk_cae(Ifc_cae);
-   method CAE_inputs mav_get_sort (CAE_inputs cae);
+   method ActionValue#(CAE_inputs) mav_get_sort (CAE_inputs cae);
 
-      // Here imma sort the inputs to ascending order
+      // Here sort the inputs to ascending order
       // checks if the first element is greater than the second element
       if(cae[0] > cae[1]) begin
          // Vectors has a simple function called reverse - 
-         // which does exactly what you think it does! - reverse elements :)
+         // which does exactly what you think it does! - reverse elements of the vector :)
          cae = reverse(cae);
          return (cae);
       end
-
+      // If the numbers are already in ascending order, return the same vector
       else return (cae);
    endmethod
 

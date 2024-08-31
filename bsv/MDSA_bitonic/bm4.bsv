@@ -26,24 +26,24 @@ package bm4;
 import cae :: *;
 import Vector :: *;
 import mdsa_types :: *;
-
-function CAE fn_map_cae(Bit#(WordLength) cae_input_1, Bit#(WordLength) cae_input_2);
+import List :: *;
+function CAE_inputs fn_map_cae(Bit#(WordLength) cae_input_1, Bit#(WordLength) cae_input_2);
   
-   CAE lv_merge;
-   lv_merge.inputs[0] = cae_input_1;
-   lv_merge.inputs[1] = cae_input_2;
+   CAE_inputs lv_merge;
+   lv_merge[0] = cae_input_1;
+   lv_merge[1] = cae_input_2;
    
    return (lv_merge);
 
 endfunction
 
-function BM4 fn_map_bm4(CAE bm4_input_1, CAE bm4_input_2);
+function BM4_inputs fn_map_bm4(CAE_inputs bm4_input_1, CAE_inputs bm4_input_2);
   
-   BM4 lv_merge;
-   lv_merge.inputs[0] = bm4_input_1.inputs[0];
-   lv_merge.inputs[1] = bm4_input_1.inputs[1];
-   lv_merge.inputs[2] = bm4_input_2.inputs[0];
-   lv_merge.inputs[3] = bm4_input_2.inputs[1];
+   BM4_inputs lv_merge;
+   lv_merge[0] = bm4_input_1[0];
+   lv_merge[1] = bm4_input_1[1];
+   lv_merge[2] = bm4_input_2[0];
+   lv_merge[3] = bm4_input_2[1];
    
    return (lv_merge);
 
@@ -51,57 +51,56 @@ endfunction
 
 typedef enum {INIT, STAGE_1, STAGE_2} RG_STAGE deriving (Bits, Eq);
 
-typedef struct {Vector#(4, Reg#(Bit#(WordLength))) v_rg;} PIPE;
+typedef BM4_inputs PIPE;
 
 interface Ifc_bm4;
-   method Action ma_get_inputs (Vector#(4, Bit#(WordLength)) inputs);
-   method ActionValue#(BM4) mav_return_output ();
+   method Action ma_get_inputs (BM4_inputs inputs);
+   method ActionValue#(BM4_inputs) mav_return_output;
 endinterface
 
 (*synthesize*)
 module mk_bm4(Ifc_bm4);
-
-   Ifc_cae cae[6];
-   for (Integer lp_i = 0; lp_i < 6; lp_i = lp_i + 1) begin
+   Ifc_cae cae[4];
+   for (Integer lp_i = 0; lp_i < 4; lp_i = lp_i + 1) begin
       cae[lp_i] <- mk_cae();
    end
    
    Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
    
-   PIPE pipe[2];
-
-   for (Integer lp_i = 0; lp_i < 2; lp_i = lp_i + 1) begin
-   pipe[lp_i].v_rg <- replicateM(mkReg(unpack(0)));
-   end
- 
+   Vector#(2, Reg#(PIPE)) pipe <- replicateM(mkReg(replicate(0)));
+   
    rule rl_stage_1(rg_stage == STAGE_1);
-      let lv_get_sort_3 = cae[2].mv_get_sort(fn_map_cae(pipe[0].v_rg[0], pipe[0].v_rg[3]));
-      let lv_get_sort_4 = cae[3].mv_get_sort(fn_map_cae(pipe[0].v_rg[1], pipe[0].v_rg[2])); 
-      pipe[1].v_rg[0] <= lv_get_sort_3.inputs[0];
-      pipe[1].v_rg[1]<= lv_get_sort_3.inputs[1];
-      pipe[1].v_rg[2] <= lv_get_sort_4.inputs[0];
-      pipe[1].v_rg[3] <= lv_get_sort_4.inputs[1];
+      let lv_get_sort_3 <- cae[2].mav_get_sort(fn_map_cae(pipe[0][0], pipe[0][3]));
+      let lv_get_sort_4 <- cae[3].mav_get_sort(fn_map_cae(pipe[0][1], pipe[0][2])); 
+      PIPE new_pipe = replicate(0);
+      new_pipe[0] = lv_get_sort_3[0];
+      new_pipe[1] = lv_get_sort_4[0];
+      new_pipe[2] = lv_get_sort_4[1];
+      new_pipe[3] = lv_get_sort_3[1];
+      pipe[1] <= new_pipe;
       rg_stage <= STAGE_2;
    endrule
 
-   method Action ma_get_inputs (inputs) if (rg_stage == INIT);
-      $display("     BM4 Stage 1 Inputs: Get inputs:", fshow(inputs));
-      let lv_get_sort_1 = cae[0].mv_get_sort(fn_map_cae(inputs[0], inputs[1]));
-      let lv_get_sort_2 = cae[1].mv_get_sort(fn_map_cae(inputs[2], inputs[3]));    
-      pipe[0].v_rg[0] <= lv_get_sort_1.inputs[0];
-      pipe[0].v_rg[1] <= lv_get_sort_1.inputs[1];
-      pipe[0].v_rg[2] <= lv_get_sort_2.inputs[0];
-      pipe[0].v_rg[3] <= lv_get_sort_2.inputs[1];
+   method Action ma_get_inputs (BM4_inputs bm4) if (rg_stage == INIT);
+      $display("     BM4 Stage 1 Inputs: Get inputs:", fshow(bm4));
+      let lv_get_sort_1 <- cae[0].mav_get_sort(fn_map_cae(bm4[0], bm4[3]));
+      let lv_get_sort_2 <- cae[1].mav_get_sort(fn_map_cae(bm4[1], bm4[2]));    
+      PIPE new_pipe = replicate(0);
+      new_pipe[0] = lv_get_sort_1[0];
+      new_pipe[1] = lv_get_sort_2[0];
+      new_pipe[2] = lv_get_sort_2[1];
+      new_pipe[3] = lv_get_sort_1[1];
+      pipe[0] <= new_pipe;
       rg_stage <= STAGE_1;
    endmethod
 
-   method ActionValue#(BM4) mav_return_output () if (rg_stage == STAGE_2); 
-      $display("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[1].v_rg[0], pipe[1].v_rg[1], pipe[1].v_rg[2], pipe[1].v_rg[3]);
-      let lv_get_sort_5 = cae[4].mv_get_sort(fn_map_cae(pipe[1].v_rg[0], pipe[1].v_rg[1]));
-      let lv_get_sort_6 = cae[5].mv_get_sort(fn_map_cae(pipe[1].v_rg[2], pipe[1].v_rg[3]));      
+   method ActionValue#(BM4_inputs) mav_return_output() if (rg_stage == STAGE_2); 
+      $display("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[1][0], pipe[1][1], pipe[1][2], pipe[1][3]);
+      let lv_get_sort_5 <- cae[0].mav_get_sort(fn_map_cae(pipe[1][0], pipe[1][1]));
+      let lv_get_sort_6 <- cae[1].mav_get_sort(fn_map_cae(pipe[1][2], pipe[1][3]));      
       rg_stage <= INIT;
-      return(fn_map_bm4(lv_get_sort_5, lv_get_sort_6));
+      return fn_map_bm4(lv_get_sort_5, lv_get_sort_6);
    endmethod
-
 endmodule
+
 endpackage
