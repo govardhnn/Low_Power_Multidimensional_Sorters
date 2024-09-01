@@ -16,7 +16,10 @@ typedef Vector#(8, Bit#(WordLength)) BM8_inputs;
 
 typedef enum {
     INIT
+    , STAGE_1
+    , STAGE_2
     , BM4_INPUT
+    , BM4_PROCESSING
     , BM4_DONE
     , BM8_STAGE_4_DONE
     , BM8_STAGE_5_DONE
@@ -24,8 +27,12 @@ typedef enum {
     } RG_STAGE deriving (Bits, Eq, FShow);
 
 typedef struct {
-    Vector#(8, int) in; 
+    Vector#(8, Bit#(WordLength)) in; 
 } BM8 deriving (Bits, Eq, FShow);
+
+
+typedef BM4_inputs PIPE_BM4;
+typedef BM8_inputs PIPE_BM8;
 
 
 endpackage

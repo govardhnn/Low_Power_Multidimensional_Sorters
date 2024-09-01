@@ -28,17 +28,20 @@ import cae :: *;
 import Vector :: *;
 import mdsa_types :: *;
 
-typedef struct {Vector#(8, Reg#(int)) v_rg;} PIPE;
+typedef BM8_inputs PIPE;
 
 interface Ifc_bm8;
-    method Action ma_get_inputs (BM8 bm8_in);
-    method ActionValue#(BM8) mav_return_outputs;
+    method Action ma_get_inputs (BM8_inputs bm8_in);
+    method ActionValue#(BM8_inputs) mav_return_outputs;
 endinterface
 
 (*synthesize*)
 module mk_bm8(Ifc_bm8);
 
-Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
+    Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
+    
+    // The bitonic sort has 6 stages
+    Vector#(6, Reg#(PIPE_BM8)) pipe <- replicateM(mkReg(unpack(0)));
 
     // BM4 Stage contains the first three stages of the six stages of Bitonic Sort
 
@@ -57,60 +60,56 @@ Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
 
     Vector#(4, Ifc_cae) cae_stage_6 <- replicateM(mk_cae());
 
-    Vector#(6, Reg#(PIPE)) pipe <- replicateM(mkReg(replicate(0)));
 
 
-rule rl_get_outputs_from_bm4 if (rg_stage == BM4_INPUT);
+rule rl_send_inputs_to_bm4 if (rg_stage == BM4_INPUT);
 
-    let lv_get_bm4_sort_1 <- bm4[0].mav_return_output();
-    let lv_get_bm4_sort_2 <- bm4[1].mav_return_output();
+    $display("[BM8]:[PIPE] Stage 1:", fshow(pipe[0]));
 
-    pipe[0].v_rg[0] <= tpl_1(lv_get_bm4_sort_1);
-    pipe[0].v_rg[1] <= tpl_2(lv_get_bm4_sort_1);
-    pipe[0].v_rg[2] <= tpl_3(lv_get_bm4_sort_1);
-    pipe[0].v_rg[3] <= tpl_4(lv_get_bm4_sort_1);
+    bm4_stage_2_3[0].ma_get_inputs(cons(pipe[0][0], cons(pipe[0][1], cons(pipe[0][2], cons(pipe[0][3], nil)) )));
+    
+    bm4_stage_2_3[1].ma_get_inputs(cons(pipe[0][4], cons(pipe[0][5], cons(pipe[0][6], cons(pipe[0][7], nil)))));
 
-    pipe[0].v_rg[4] <= tpl_1(lv_get_bm4_sort_2);
-    pipe[0].v_rg[5] <= tpl_2(lv_get_bm4_sort_2);
-    pipe[0].v_rg[6] <= tpl_3(lv_get_bm4_sort_2);
-    pipe[0].v_rg[7] <= tpl_4(lv_get_bm4_sort_2);
+    
+
+    rg_stage <= BM4_PROCESSING;
+ endrule
+
+ rule rl_get_outputs_from_bm4 if (rg_stage == BM4_PROCESSING);
+
+
+    BM4_inputs lv_get_bm4_sort_1 <- bm4_stage_2_3[0].mav_return_output();
+    BM4_inputs lv_get_bm4_sort_2 <- bm4_stage_2_3[1].mav_return_output();
+
+    pipe[1] <= cons(lv_get_bm4_sort_1[0], cons(lv_get_bm4_sort_1[1], cons(lv_get_bm4_sort_1[2], cons(lv_get_bm4_sort_1[3], cons(lv_get_bm4_sort_2[0], cons(lv_get_bm4_sort_2[1], cons(lv_get_bm4_sort_2[2], cons(lv_get_bm4_sort_2[3], nil))))))));
 
     rg_stage <= BM4_DONE;
  endrule
 
  rule rl_bm8_stage_4 if (rg_stage == BM4_DONE);
-    $display("BM8 Stage 4 got inputs: %0d %0d %0d %0d %0d %0d %0d %0d", pipe[0].v_rg[0], pipe[0].v_rg[1], pipe[0].v_rg[2], pipe[0].v_rg[3], pipe[0].v_rg[4], pipe[0].v_rg[5], pipe[0].v_rg[6], pipe[0].v_rg[7]);
+    $display("[BM8]:[PIPE] Stage 3:", fshow(pipe[1]));
 
-    pipe[1].v_rg[0] <= tpl_1(cae_stage_4[0].mv_get_sort(pipe[0].v_rg[0], pipe[0].v_rg[7]));
-    pipe[1].v_rg[7] <= tpl_2(cae_stage_4[0].mv_get_sort(pipe[0].v_rg[0], pipe[0].v_rg[7]));
+    let lv_stage_4_sort_1 <- fn_cae_dual_sort(cae_stage_4[0], pipe[1][0], pipe[1][7]);  
+    let lv_stage_4_sort_2 <- fn_cae_dual_sort(cae_stage_4[1], pipe[1][1], pipe[1][6]);
+    let lv_stage_4_sort_3 <- fn_cae_dual_sort(cae_stage_4[2], pipe[1][2], pipe[1][5]);
+    let lv_stage_4_sort_4 <- fn_cae_dual_sort(cae_stage_4[3], pipe[1][3], pipe[1][4]);
 
-    pipe[1].v_rg[1] <= tpl_1(cae_stage_4[1].mv_get_sort(pipe[0].v_rg[1], pipe[0].v_rg[6]));
-    pipe[1].v_rg[6] <= tpl_2(cae_stage_4[1].mv_get_sort(pipe[0].v_rg[1], pipe[0].v_rg[6]));
-
-    pipe[1].v_rg[2] <= tpl_1(cae_stage_4[2].mv_get_sort(pipe[0].v_rg[2], pipe[0].v_rg[5]));
-    pipe[1].v_rg[5] <= tpl_2(cae_stage_4[2].mv_get_sort(pipe[0].v_rg[2], pipe[0].v_rg[5]));
-
-    pipe[1].v_rg[3] <= tpl_1(cae_stage_4[3].mv_get_sort(pipe[0].v_rg[3], pipe[0].v_rg[4]));
-    pipe[1].v_rg[4] <= tpl_2(cae_stage_4[3].mv_get_sort(pipe[0].v_rg[3], pipe[0].v_rg[4]));
+    pipe[2] <= cons(lv_stage_4_sort_1[0], cons(lv_stage_4_sort_2[0], cons(lv_stage_4_sort_3[0], cons(lv_stage_4_sort_4[0], cons(lv_stage_4_sort_4[1], cons(lv_stage_4_sort_3[1], cons(lv_stage_4_sort_2[1], cons(lv_stage_4_sort_1[1], nil))))))));
 
     rg_stage <= BM8_STAGE_4_DONE;
+
  endrule
 
  rule rl_bm8_stage_5 if (rg_stage == BM8_STAGE_4_DONE);
     
-    $display("BM8 Stage 5 got inputs: %0d %0d %0d %0d %0d %0d %0d %0d", pipe[1].v_rg[0], pipe[1].v_rg[1], pipe[1].v_rg[2], pipe[1].v_rg[3], pipe[1].v_rg[4], pipe[1].v_rg[5], pipe[1].v_rg[6], pipe[1].v_rg[7]);
+    $display("[BM8]:[PIPE] Stage 4:", fshow(pipe[2]));
 
-    pipe[2].v_rg[0] <= tpl_1(cae_stage_5[0].mv_get_sort(pipe[1].v_rg[0], pipe[1].v_rg[2]));
-    pipe[2].v_rg[2] <= tpl_2(cae_stage_5[0].mv_get_sort(pipe[1].v_rg[0], pipe[1].v_rg[2]));
+    let lv_stage_5_sort_1 <- fn_cae_dual_sort(cae_stage_5[0], pipe[2][0], pipe[2][2]);
+    let lv_stage_5_sort_2 <- fn_cae_dual_sort(cae_stage_5[1], pipe[2][1], pipe[2][3]);
+    let lv_stage_5_sort_3 <- fn_cae_dual_sort(cae_stage_5[2], pipe[2][4], pipe[2][6]);
+    let lv_stage_5_sort_4 <- fn_cae_dual_sort(cae_stage_5[3], pipe[2][5], pipe[2][7]);
 
-    pipe[2].v_rg[1] <= tpl_1(cae_stage_5[1].mv_get_sort(pipe[1].v_rg[1], pipe[1].v_rg[3]));
-    pipe[2].v_rg[3] <= tpl_2(cae_stage_5[1].mv_get_sort(pipe[1].v_rg[1], pipe[1].v_rg[3]));
-
-    pipe[2].v_rg[4] <= tpl_1(cae_stage_5[2].mv_get_sort(pipe[1].v_rg[4], pipe[1].v_rg[6]));
-    pipe[2].v_rg[6] <= tpl_2(cae_stage_5[2].mv_get_sort(pipe[1].v_rg[4], pipe[1].v_rg[6]));
-
-    pipe[2].v_rg[5] <= tpl_1(cae_stage_5[3].mv_get_sort(pipe[1].v_rg[5], pipe[1].v_rg[7]));
-    pipe[2].v_rg[7] <= tpl_2(cae_stage_5[3].mv_get_sort(pipe[1].v_rg[5], pipe[1].v_rg[7]));
+    pipe[3] <= cons(lv_stage_5_sort_1[0], cons(lv_stage_5_sort_2[0], cons(lv_stage_5_sort_1[1], cons(lv_stage_5_sort_2[1], cons(lv_stage_5_sort_3[0], cons(lv_stage_5_sort_4[0], cons(lv_stage_5_sort_3[1], cons(lv_stage_5_sort_4[1], nil))))))));
 
     rg_stage <= BM8_STAGE_5_DONE;
 
@@ -118,35 +117,38 @@ rule rl_get_outputs_from_bm4 if (rg_stage == BM4_INPUT);
 
  rule rl_bm8_stage_6 if (rg_stage == BM8_STAGE_5_DONE);
     
-    $display("BM8 Stage 6 got inputs: %0d %0d %0d %0d %0d %0d %0d %0d", pipe[2].v_rg[0], pipe[2].v_rg[1], pipe[2].v_rg[2], pipe[2].v_rg[3], pipe[2].v_rg[4], pipe[2].v_rg[5], pipe[2].v_rg[6], pipe[2].v_rg[7]);
+    $display("[BM8]:[PIPE] Stage 5:", fshow(pipe[3]));
 
-    pipe[3].v_rg[0] <= tpl_1(cae_stage_6[0].mv_get_sort(pipe[2].v_rg[0], pipe[2].v_rg[1]));
-    pipe[3].v_rg[1] <= tpl_2(cae_stage_6[0].mv_get_sort(pipe[2].v_rg[0], pipe[2].v_rg[1]));
+    let lv_stage_6_sort_1 <- cae_stage_6[0].mav_get_sort(fn_to_cae(pipe[3][0], pipe[3][1]));
+    let lv_stage_6_sort_2 <- cae_stage_6[1].mav_get_sort(fn_to_cae(pipe[3][2], pipe[3][3]));
+    let lv_stage_6_sort_3 <- cae_stage_6[2].mav_get_sort(fn_to_cae(pipe[3][4], pipe[3][5]));
+    let lv_stage_6_sort_4 <- cae_stage_6[3].mav_get_sort(fn_to_cae(pipe[3][6], pipe[3][7]));
 
-    pipe[3].v_rg[2] <= tpl_1(cae_stage_6[1].mv_get_sort(pipe[2].v_rg[2], pipe[2].v_rg[3]));
-    pipe[3].v_rg[3] <= tpl_2(cae_stage_6[1].mv_get_sort(pipe[2].v_rg[2], pipe[2].v_rg[3]));
-
-    pipe[3].v_rg[4] <= tpl_1(cae_stage_6[2].mv_get_sort(pipe[2].v_rg[4], pipe[2].v_rg[5]));
-    pipe[3].v_rg[5] <= tpl_2(cae_stage_6[2].mv_get_sort(pipe[2].v_rg[4], pipe[2].v_rg[5]));
-
-    pipe[3].v_rg[6] <= tpl_1(cae_stage_6[3].mv_get_sort(pipe[2].v_rg[6], pipe[2].v_rg[7]));
-    pipe[3].v_rg[7] <= tpl_2(cae_stage_6[3].mv_get_sort(pipe[2].v_rg[6], pipe[2].v_rg[7]));
+    pipe[4] <= cons(lv_stage_6_sort_1[0], cons(lv_stage_6_sort_1[1], cons(lv_stage_6_sort_2[0], cons(lv_stage_6_sort_2[1], cons(lv_stage_6_sort_3[0], cons(lv_stage_6_sort_3[1], cons(lv_stage_6_sort_4[0], cons(lv_stage_6_sort_4[1], nil))))))));
 
     rg_stage <= BM8_STAGE_6_DONE;
 
  endrule
 
-method Action ma_get_inputs (BM8 bm8_in) if (rg_stage == INIT);
+method Action ma_get_inputs (BM8_inputs bm8_in) if (rg_stage == INIT);
     
-    bm4[0].ma_get_inputs((bm8_in.in[0]), bm8_in.in[1], bm8_in.in[2], bm8_in.in[3]);
-    bm4[1].ma_get_inputs(bm8_in.in[4], bm8_in.in[5], bm8_in.in[6], bm8_in.in[7]);
+    let lv_cae_sort_1 <- fn_cae_dual_sort(cae_stage_1[0], bm8_in[0], bm8_in[1]);
+    let lv_cae_sort_2 <- fn_cae_dual_sort(cae_stage_1[1], bm8_in[2], bm8_in[3]);
+    let lv_cae_sort_3 <- fn_cae_dual_sort(cae_stage_1[2], bm8_in[4], bm8_in[5]);
+    let lv_cae_sort_4 <- fn_cae_dual_sort(cae_stage_1[3], bm8_in[6], bm8_in[7]);
+
+    pipe[0] <= cons(lv_cae_sort_1[0], cons(lv_cae_sort_1[1], cons(lv_cae_sort_2[0], cons(lv_cae_sort_2[1], cons(lv_cae_sort_3[0], cons(lv_cae_sort_3[1], cons(lv_cae_sort_4[0], cons(lv_cae_sort_4[1], nil))))))));
+
     rg_stage <= BM4_INPUT;
 
 endmethod
 
-method ActionValue#(Tuple8#(int, int, int, int, int, int, int, int)) mav_return_outputs if (rg_stage == BM8_STAGE_6_DONE);
+    method ActionValue#(BM8_inputs) mav_return_outputs if (rg_stage == BM8_STAGE_6_DONE);
+
     rg_stage <= INIT;
-    return(tuple8(pipe[3].v_rg[0], pipe[3].v_rg[1], pipe[3].v_rg[2], pipe[3].v_rg[3], pipe[3].v_rg[4], pipe[3].v_rg[5], pipe[3].v_rg[6], pipe[3].v_rg[7]));
+    BM8_inputs lv_output_return;
+    lv_output_return = cons(pipe[4][0], cons(pipe[4][1], cons(pipe[4][2], cons(pipe[4][3], cons(pipe[4][4], cons(pipe[4][5], cons(pipe[4][6], cons(pipe[4][7], nil))))))));
+    return lv_output_return;
 endmethod
 
 endmodule

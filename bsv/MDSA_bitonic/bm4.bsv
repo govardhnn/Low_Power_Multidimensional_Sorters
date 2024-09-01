@@ -28,39 +28,42 @@ import Vector :: *;
 import mdsa_types :: *;
 import List :: *;
 
-function ActionValue#(CAE_inputs) fn_cae_dual_sort(Ifc_cae cae, Bit#(WordLength) cae_input_1, Bit#(WordLength) cae_input_2);
-   actionvalue
-      let lv_get_sort <- cae.mav_get_sort(fn_to_cae(cae_input_1, cae_input_2));
-      return lv_get_sort;
-   endactionvalue
-endfunction
-
-function CAE_inputs fn_to_cae(Bit#(WordLength) cae_input_1, Bit#(WordLength) cae_input_2);
-   CAE_inputs lv_merge;
-   lv_merge = cons(cae_input_1, cons(cae_input_2, nil));
-   return (lv_merge);
-endfunction
 
 function BM4_inputs fn_cae_to_bm4(CAE_inputs bm4_input_1, CAE_inputs bm4_input_2);
    BM4_inputs lv_merge;
-   lv_merge = cons(bm4_input_1[0], cons(bm4_input_2[0], cons(bm4_input_2[1], cons(bm4_input_1[1], nil))));
+   lv_merge[0] = bm4_input_1[0];
+   lv_merge[1] = bm4_input_1[1];
+   lv_merge[2] = bm4_input_2[0];
+   lv_merge[3] = bm4_input_2[1];
    return (lv_merge);
 endfunction
 
-typedef enum {INIT, STAGE_1, STAGE_2} RG_STAGE deriving (Bits, Eq);
-
-typedef BM4_inputs PIPE;
+function BM8_inputs fn_cae_to_bm8(BM4_inputs bm8_input_1, BM4_inputs bm8_input_2);
+   BM8_inputs lv_merge;
+   lv_merge[0] = bm8_input_1[0];
+   lv_merge[1] = bm8_input_1[1];
+   lv_merge[2] = bm8_input_2[0];
+   lv_merge[3] = bm8_input_2[1];
+   return (lv_merge);
+endfunction
 
 interface Ifc_bm4;
    method Action ma_get_inputs (BM4_inputs inputs);
    method ActionValue#(BM4_inputs) mav_return_output;
 endinterface
 
+// function ActionValue#(BM4_inputs) fn_bm4_sort(Ifc_bm4 bm4, BM4_inputs bm4_input_1, BM4_inputs bm4_input_2);
+//    actionvalue
+//       let lv_get_sort <- bm4.ma_get_inputs(fn_cae_to_bm4(bm4_input_1, bm4_input_2));
+//       return lv_get_sort;
+//    endactionvalue
+// endfunction
+
 (*synthesize*)
 module mk_bm4(Ifc_bm4);
    
    Vector#(2, Ifc_cae) cae <- replicateM(mk_cae());
-   Vector#(2, Reg#(PIPE)) pipe <- replicateM(mkReg(replicate(0)));
+   Vector#(2, Reg#(PIPE_BM4)) pipe <- replicateM(mkReg(unpack(0)));
 
    Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
 

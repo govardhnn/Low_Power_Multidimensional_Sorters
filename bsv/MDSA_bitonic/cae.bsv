@@ -25,6 +25,20 @@ package cae;
 import mdsa_types :: *;
 import Vector ::*;
 
+function ActionValue#(CAE_inputs) fn_cae_dual_sort(Ifc_cae cae, Bit#(WordLength) cae_input_1, Bit#(WordLength) cae_input_2);
+   actionvalue
+      let lv_get_sort <- cae.mav_get_sort(fn_to_cae(cae_input_1, cae_input_2));
+      return lv_get_sort;
+   endactionvalue
+endfunction
+
+function CAE_inputs fn_to_cae(Bit#(WordLength) cae_input_1, Bit#(WordLength) cae_input_2);
+   CAE_inputs lv_merge;
+   lv_merge = cons(cae_input_1, cons(cae_input_2, nil));
+   return (lv_merge);
+endfunction
+
+
 interface Ifc_cae;
    // Receive and send back cae inputs (which are two numbers) -- in ascending order
    method ActionValue#(CAE_inputs) mav_get_sort (CAE_inputs cae);

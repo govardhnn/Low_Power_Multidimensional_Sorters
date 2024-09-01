@@ -24,18 +24,18 @@ package bm8_testbench;
 
 import bm8 :: *;
 import mdsa_types :: *;
+import Vector :: *;
 
 (*synthesize*)
 module mk_bm8_testbench(Empty);
 
 
-    BM8 initialVector = map(fromInteger, reverse(genVector));
+    BM8_inputs initialVector = map(fromInteger, reverse(genVector));
 
-    Reg#(BM8) rg_bm8_in <- mkReg(initialVector);
-    
+    Reg#(BM8_inputs) rg_bm8_in <- mkReg(initialVector);
+
     Ifc_bm8 bm8 <- mk_bm8;
 
-    
     rule rl_send_data;
         $display(" -- TB -- Sending data:", fshow(rg_bm8_in));
         bm8.ma_get_inputs(rg_bm8_in);
@@ -45,7 +45,7 @@ module mk_bm8_testbench(Empty);
              
         let lv_out <- bm8.mav_return_outputs();
 
-        $display(" -- TB - Got data: %0d %0d %0d %0d %0d %0d %0d %0d", tpl_1(lv_out), tpl_2(lv_out), tpl_3(lv_out), tpl_4(lv_out), tpl_5(lv_out), tpl_6(lv_out), tpl_7(lv_out), tpl_8(lv_out));
+        $display(" -- TB - Got data:", fshow(lv_out));
         $finish;
     endrule
 
