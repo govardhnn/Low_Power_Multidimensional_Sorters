@@ -1,0 +1,16 @@
+=== Why I rewrote my capstone project (The MDSA implementation) in Bluespec System Verilog
+
+This document outlines the motivation to using Bluespec System Verilog for Hardware design, 
+with emphasis on dealing with concurrency beautifully using guarded atomic actions.
+
+A little bit of background here. My first ever major hardware design was the 
+implementation of the Multi-Dimensional Sorting Algorithm, 
+along with my Capstone team in my bachelors final year. 
+We designed the complete module in Verilog, and the micro-architecture of the
+MDSA can be referred from our paper:link:[], 
+
+I shall provide insights into how the same design when represented
+in guarded atomic actions in BSV proves a much more effecient way of thinking
+about designing complex micro-architectures dealing with parallelism, concurrency
+and helps to use high levels of abstraction.
+
