@@ -12,5 +12,5 @@ MDSA can be referred from our paper:link:[],
 I shall provide insights into how the same design when represented
 in guarded atomic actions in BSV proves a much more effecient way of thinking
 about designing complex micro-architectures dealing with parallelism, concurrency
-and helps to use high levels of abstraction.
+and helps use high levels of abstraction.
 

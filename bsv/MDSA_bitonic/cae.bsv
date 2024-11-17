@@ -22,23 +22,25 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package cae;
 
-import mdsa_types :: *;
-import Vector ::*;
+import mdsa_types       ::*;
+import Vector           ::*;
+import BuildVector      ::*;
 
-function ActionValue#(CAE_inputs) fn_cae_dual_sort(Ifc_cae cae, Bit#(WordLength) cae_input_1, Bit#(WordLength) cae_input_2);
+// This function performs the CAE dual sort operation
+function ActionValue#(CAE_inputs) fn_cae_dual_sort(
+   Ifc_cae cae
+   , Bit#(WordLength) cae_input_1
+   , Bit#(WordLength) cae_input_2);
+   
    actionvalue
-      let lv_get_sort <- cae.mav_get_sort(fn_to_cae(cae_input_1, cae_input_2));
+      // invoke the CAE sorting operation
+      let lv_get_sort <- cae.mav_get_sort(vec(cae_input_1, cae_input_2));
       return lv_get_sort;
    endactionvalue
+
 endfunction
 
-function CAE_inputs fn_to_cae(Bit#(WordLength) cae_input_1, Bit#(WordLength) cae_input_2);
-   CAE_inputs lv_merge;
-   lv_merge = cons(cae_input_1, cons(cae_input_2, nil));
-   return (lv_merge);
-endfunction
-
-
+// The Interface for the CAE block
 interface Ifc_cae;
    // Receive and send back cae inputs (which are two numbers) -- in ascending order
    method ActionValue#(CAE_inputs) mav_get_sort (CAE_inputs cae);
@@ -46,18 +48,18 @@ endinterface
 
 (* synthesize *)
 module mk_cae(Ifc_cae);
+   // Here sort the inputs to ascending order
+   // checks if the first element is greater than the second element
    method ActionValue#(CAE_inputs) mav_get_sort (CAE_inputs cae);
 
-      // Here sort the inputs to ascending order
-      // checks if the first element is greater than the second element
       if(cae[0] > cae[1]) begin
          // Vectors has a simple function called reverse - 
          // which does exactly what you think it does! - reverse elements of the vector :)
          cae = reverse(cae);
-         return (cae);
       end
       // If the numbers are already in ascending order, return the same vector
-      else return (cae);
+      
+      return (cae);
    endmethod
 
 endmodule
