@@ -29,7 +29,6 @@ import Vector :: *;
 (*synthesize*)
 module mk_bm8_testbench(Empty);
 
-
     BM8_inputs initialVector = map(fromInteger, reverse(genVector));
 
     Reg#(BM8_inputs) rg_bm8_in <- mkReg(initialVector);

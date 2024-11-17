@@ -65,8 +65,8 @@ module mk_bm4(Ifc_bm4);
    method Action ma_get_inputs (BM4_inputs bm4) if (rg_stage == INIT);
       $display("     BM4 Stage 1 Inputs: Get inputs:", fshow(bm4));
       // Perform parallel CAE operations on input pairs (0,3) and (1,2)
-      let lv_get_sort_1 <- fn_cae_dual_sort(cae[0], bm4[0], bm4[3]);
-      let lv_get_sort_2 <- fn_cae_dual_sort(cae[1], bm4[1], bm4[2]);    
+      let lv_get_sort_1 <- cae[0].mav_get_sort(vec(bm4[0], bm4[3]));
+      let lv_get_sort_2 <- cae[1].mav_get_sort(vec(bm4[1], bm4[2]));    
       // Store intermediate results in pipeline register
       pipe[0] <= vec(lv_get_sort_1[0], lv_get_sort_2[0], lv_get_sort_2[1], lv_get_sort_1[1]);
       rg_stage <= STAGE_1;
@@ -76,8 +76,8 @@ module mk_bm4(Ifc_bm4);
    method ActionValue#(BM4_inputs) mav_return_output() if (rg_stage == STAGE_1); 
       $display("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[0][0], pipe[0][1], pipe[0][2], pipe[0][3]);
       // Perform parallel CAE operations on adjacent pairs
-      let lv_get_sort_3 <- fn_cae_dual_sort(cae[0], pipe[0][0], pipe[0][1]);
-      let lv_get_sort_4 <- fn_cae_dual_sort(cae[1], pipe[0][2], pipe[0][3]);      
+      let lv_get_sort_3 <- cae[0].mav_get_sort(vec(pipe[0][0], pipe[0][1]));
+      let lv_get_sort_4 <- cae[1].mav_get_sort(vec(pipe[0][2], pipe[0][3]));      
       rg_stage <= INIT;
       // Return the final sorted sequence
       return (vec(lv_get_sort_3[0], lv_get_sort_3[1], lv_get_sort_4[0], lv_get_sort_4[1]));
