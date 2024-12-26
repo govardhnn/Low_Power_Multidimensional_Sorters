@@ -38,7 +38,8 @@ v_link: build_v verilog_dir
 .PHONY: v_simulate
 v_simulate:
 	@echo Verilog simulation...
-	./$(VSIM_EXE) +bscvcd
+	./$(VSIM_EXE)
+#+bscvcd
 	@echo Verilog simulation finished
 
 .PHONY: clean
