@@ -26,40 +26,20 @@ import mdsa_types       ::*;
 import Vector           ::*;
 import BuildVector      ::*;
 
-// This function performs the CAE dual sort operation
-function ActionValue#(CAE_inputs) fn_cae_dual_sort(
-   Ifc_cae cae
-   , Bit#(WordLength) cae_input_1
-   , Bit#(WordLength) cae_input_2);
-   
-   actionvalue
-      // invoke the CAE sorting operation
-      let lv_get_sort <- cae.mav_get_sort(vec(cae_input_1, cae_input_2));
-      return lv_get_sort;
-   endactionvalue
-
-endfunction
-
 // The Interface for the CAE block
 interface Ifc_cae;
-   // Receive and send back cae inputs (which are two numbers) -- in ascending order
-   method ActionValue#(CAE_inputs) mav_get_sort (CAE_inputs cae);
+   // Receive and return the ascending order of the two inputs
+   method ActionValue#(CAE) mav_get_sort (CAE cae_in);
 endinterface
 
 (* synthesize *)
 module mk_cae(Ifc_cae);
-   // Here sort the inputs to ascending order
-   // checks if the first element is greater than the second element
-   method ActionValue#(CAE_inputs) mav_get_sort (CAE_inputs cae);
-
-      if(cae[0] > cae[1]) begin
-         // Vectors has a simple function called reverse - 
-         // which does exactly what you think it does! - reverse elements of the vector :)
-         cae = reverse(cae);
-      end
-      // If the numbers are already in ascending order, return the same vector
-      
-      return (cae);
+   // Sort the inputs to ascending order
+   method ActionValue#(CAE) mav_get_sort (CAE cae_in);
+      if(cae_in[0] > cae_in[1]) begin
+         cae_in = reverse(cae_in);
+      end      
+      return(cae_in);
    endmethod
 
 endmodule

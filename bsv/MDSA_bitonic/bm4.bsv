@@ -31,8 +31,8 @@ import BuildVector   ::*;
 
 // Function to combine two BM4 inputs into a BM8 input
 // This enables hierarchical construction of larger bitonic mergers
-function BM8_inputs fn_cae_to_bm8(BM4_inputs bm8_input_1, BM4_inputs bm8_input_2);
-   BM8_inputs lv_merge;
+function BM8 fn_cae_to_bm8(BM4 bm8_input_1, BM4 bm8_input_2);
+   BM8 lv_merge;
    lv_merge[0] = bm8_input_1[0];
    lv_merge[1] = bm8_input_1[1];
    lv_merge[2] = bm8_input_2[0];
@@ -43,9 +43,9 @@ endfunction
 // Interface for the 4-input Bitonic Merger
 interface Ifc_bm4;
    // Method to input 4 values to be sorted
-   method Action ma_get_inputs (BM4_inputs inputs);
+   method Action ma_get_inputs (BM4 inputs);
    // Method to get the sorted output
-   method ActionValue#(BM4_inputs) mav_return_output;
+   method ActionValue#(BM4) mav_return_output;
 endinterface
 
 // Synthesizable module implementing a 4-input Bitonic Merge Unit
@@ -56,13 +56,13 @@ module mk_bm4(Ifc_bm4);
    Vector#(2, Ifc_cae) cae <- replicateM(mk_cae());
    
    // Pipeline registers to store intermediate results
-   Vector#(2, Reg#(PIPE_BM4)) pipe <- replicateM(mkReg(unpack(0)));
+   Vector#(2, Reg#(BM4)) pipe <- replicateM(mkReg(unpack(0)));
 
    // Register to track the current stage of sorting
    Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
 
    // Stage 1: Initial parallel comparisons
-   method Action ma_get_inputs (BM4_inputs bm4) if (rg_stage == INIT);
+   method Action ma_get_inputs (BM4 bm4) if (rg_stage == INIT);
       $display("     BM4 Stage 1 Inputs: Get inputs:", fshow(bm4));
       // Perform parallel CAE operations on input pairs (0,3) and (1,2)
       let lv_get_sort_1 <- cae[0].mav_get_sort(vec(bm4[0], bm4[3]));
@@ -73,7 +73,7 @@ module mk_bm4(Ifc_bm4);
    endmethod
 
    // Stage 2: Final parallel comparisons
-   method ActionValue#(BM4_inputs) mav_return_output() if (rg_stage == STAGE_1); 
+   method ActionValue#(BM4) mav_return_output() if (rg_stage == STAGE_1); 
       $display("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[0][0], pipe[0][1], pipe[0][2], pipe[0][3]);
       // Perform parallel CAE operations on adjacent pairs
       let lv_get_sort_3 <- cae[0].mav_get_sort(vec(pipe[0][0], pipe[0][1]));

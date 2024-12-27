@@ -39,9 +39,9 @@ module mk_bm4_testbench(Empty);
 
     Reg#(Bool) rg_sent_bm4_test <- mkReg(False);
 
-    BM4_inputs initialVector = map(fromInteger, reverse(genVector));
+    BM4 initialVector = map(fromInteger, reverse(genVector));
 
-    Reg#(BM4_inputs) rg_bm4_input <- mkReg(initialVector);
+    Reg#(BM4) rg_bm4_input <- mkReg(initialVector);
 
     rule rl_send_data(!rg_sent_bm4_test);
         $display(" -- TB -- Sending data: ", fshow(rg_bm4_input));

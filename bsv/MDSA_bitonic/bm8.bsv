@@ -29,11 +29,11 @@ import Vector :: *;
 import mdsa_types :: *;
 import BuildVector :: *;
 
-typedef BM8_inputs PIPE;
+typedef BM8 PIPE;
 
 interface Ifc_bm8;
-    method Action ma_get_inputs (BM8_inputs bm8_in);
-    method ActionValue#(BM8_inputs) mav_return_outputs;
+    method Action ma_get_inputs (BM8 bm8_in);
+    method ActionValue#(BM8) mav_return_outputs;
 endinterface
 
 (*synthesize*)
@@ -42,7 +42,7 @@ module mk_bm8(Ifc_bm8);
     Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
     
     // The bitonic sort has 6 stages
-    Vector#(6, Reg#(PIPE_BM8)) pipe <- replicateM(mkReg(unpack(0)));
+    Vector#(6, Reg#(BM8)) pipe <- replicateM(mkReg(unpack(0)));
 
     Vector#(4, Ifc_cae) cae_stage_1 <- replicateM(mk_cae());
     Vector#(2, Ifc_bm4) bm4_stage_2_3 <- replicateM(mk_bm4());
@@ -58,8 +58,8 @@ rule rl_send_inputs_to_bm4 if (rg_stage == BM4_INPUT);
  endrule
 
  rule rl_get_outputs_from_bm4 if (rg_stage == BM4_PROCESSING);
-    BM4_inputs lv_get_bm4_sort_1 <- bm4_stage_2_3[0].mav_return_output();
-    BM4_inputs lv_get_bm4_sort_2 <- bm4_stage_2_3[1].mav_return_output();
+    BM4 lv_get_bm4_sort_1 <- bm4_stage_2_3[0].mav_return_output();
+    BM4 lv_get_bm4_sort_2 <- bm4_stage_2_3[1].mav_return_output();
 
     pipe[1] <= vec(lv_get_bm4_sort_1[0]
                     , lv_get_bm4_sort_1[1]
@@ -122,7 +122,7 @@ rule rl_send_inputs_to_bm4 if (rg_stage == BM4_INPUT);
 
  endrule
 
-method Action ma_get_inputs (BM8_inputs bm8_in) if (rg_stage == INIT);
+method Action ma_get_inputs (BM8 bm8_in) if (rg_stage == INIT);
     
     let lv_cae_sort_1 <- cae_stage_1[0].mav_get_sort(vec(bm8_in[0], bm8_in[1]));
     let lv_cae_sort_2 <- cae_stage_1[1].mav_get_sort(vec(bm8_in[2], bm8_in[3]));
@@ -142,9 +142,9 @@ method Action ma_get_inputs (BM8_inputs bm8_in) if (rg_stage == INIT);
 
 endmethod
 
-method ActionValue#(BM8_inputs) mav_return_outputs if (rg_stage == BM8_STAGE_6_DONE);
+method ActionValue#(BM8) mav_return_outputs if (rg_stage == BM8_STAGE_6_DONE);
     rg_stage <= INIT;
-    BM8_inputs lv_output_return;
+    BM8 lv_output_return;
     lv_output_return = vec(pipe[4][0], pipe[4][1], pipe[4][2], pipe[4][3], pipe[4][4], pipe[4][5], pipe[4][6], pipe[4][7]);
     return(lv_output_return);
 endmethod
