@@ -41,8 +41,8 @@ module mk_bm8(Ifc_bm8);
 
     Reg#(RG_STAGE) rg_stage <- mkReg(INIT);
     
-    // The bitonic sort has 6 stages
-    Vector#(6, Reg#(BM8)) pipe <- replicateM(mkReg(unpack(0)));
+    // The bitonic sort has 6 stages, and needs 5 intermediate register pipelines
+    Vector#(5, Reg#(BM8)) pipe <- replicateM(mkReg(unpack(0)));
 
     Vector#(4, Ifc_cae) cae_stage_1 <- replicateM(mk_cae());
     Vector#(2, Ifc_bm4) bm4_stage_2_3 <- replicateM(mk_bm4());
@@ -55,9 +55,9 @@ rule rl_send_inputs_to_bm4 if (rg_stage == BM4_INPUT);
     bm4_stage_2_3[0].ma_get_inputs(vec(pipe[0][0], pipe[0][1], pipe[0][2], pipe[0][3]));
     bm4_stage_2_3[1].ma_get_inputs(vec(pipe[0][4], pipe[0][5], pipe[0][6], pipe[0][7]));
     rg_stage <= BM4_PROCESSING;
- endrule
+endrule
 
- rule rl_get_outputs_from_bm4 if (rg_stage == BM4_PROCESSING);
+rule rl_get_outputs_from_bm4 if (rg_stage == BM4_PROCESSING);
     BM4 lv_get_bm4_sort_1 <- bm4_stage_2_3[0].mav_return_output();
     BM4 lv_get_bm4_sort_2 <- bm4_stage_2_3[1].mav_return_output();
 
@@ -71,9 +71,9 @@ rule rl_send_inputs_to_bm4 if (rg_stage == BM4_INPUT);
                     , lv_get_bm4_sort_2[3]);
 
     rg_stage <= BM4_DONE;
- endrule
+endrule
 
- rule rl_bm8_stage_4 if (rg_stage == BM4_DONE);
+rule rl_bm8_stage_4 if (rg_stage == BM4_DONE);
     $display("[BM8]:[PIPE] Stage 3:", fshow(pipe[1]));
 
     let lv_stage_4_sort_1 <- cae_stage_4[0].mav_get_sort(vec(pipe[1][0], pipe[1][7]));  
@@ -92,9 +92,9 @@ rule rl_send_inputs_to_bm4 if (rg_stage == BM4_INPUT);
                     
     rg_stage <= BM8_STAGE_4_DONE;
 
- endrule
+endrule
 
- rule rl_bm8_stage_5 if (rg_stage == BM8_STAGE_4_DONE);
+rule rl_bm8_stage_5 if (rg_stage == BM8_STAGE_4_DONE);
     
     $display("[BM8]:[PIPE] Stage 4:", fshow(pipe[2]));
 
@@ -106,9 +106,9 @@ rule rl_send_inputs_to_bm4 if (rg_stage == BM4_INPUT);
     pipe[3] <= vec(lv_stage_5_sort_1[0], lv_stage_5_sort_2[0], lv_stage_5_sort_1[1], lv_stage_5_sort_2[1], lv_stage_5_sort_3[0], lv_stage_5_sort_4[0], lv_stage_5_sort_3[1], lv_stage_5_sort_4[1]);
     rg_stage <= BM8_STAGE_5_DONE;
 
- endrule
+endrule
 
- rule rl_bm8_stage_6 if (rg_stage == BM8_STAGE_5_DONE);
+rule rl_bm8_stage_6 if (rg_stage == BM8_STAGE_5_DONE);
     
     $display("[BM8]:[PIPE] Stage 5:", fshow(pipe[3]));
 
@@ -120,7 +120,7 @@ rule rl_send_inputs_to_bm4 if (rg_stage == BM4_INPUT);
     pipe[4] <= vec(lv_stage_6_sort_1[0], lv_stage_6_sort_1[1], lv_stage_6_sort_2[0], lv_stage_6_sort_2[1], lv_stage_6_sort_3[0], lv_stage_6_sort_3[1], lv_stage_6_sort_4[0], lv_stage_6_sort_4[1]);
     rg_stage <= BM8_STAGE_6_DONE;
 
- endrule
+endrule
 
 method Action ma_get_inputs (BM8 bm8_in) if (rg_stage == INIT);
     

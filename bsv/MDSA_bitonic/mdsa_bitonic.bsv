@@ -12,6 +12,21 @@ endinterface
 
 module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
 
+    function fn_input_sorting_network(Vector#(8, Ifc_bm8) bm8
+                                        , MDSA_64 mdsa_in);
+        action
+            bm8[0].ma_get_inputs(mdsa_in[0]);
+            bm8[1].ma_get_inputs(mdsa_in[1]);
+            bm8[2].ma_get_inputs(mdsa_in[2]);
+            bm8[3].ma_get_inputs(mdsa_in[3]);
+            bm8[4].ma_get_inputs(mdsa_in[4]);
+            bm8[5].ma_get_inputs(mdsa_in[5]);
+            bm8[6].ma_get_inputs(mdsa_in[6]);
+            bm8[7].ma_get_inputs(mdsa_in[7]);
+        endaction
+    endfunction
+
+
     Reg#(MDSA_FSM) rg_mdsa_fsm <- mkReg(IDLE);
 
     // This 64 Entry Buffer divides the data into 8 blocks of 8 input vectors
@@ -26,14 +41,7 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         // Column Sorting Phase
         $display("[MDSA] STARTING MDSA STAGE 1");
         $display("[MDSA]: STAGE 1 INPUTS:", fshow(v_rg_mdsa_in));   
-        bm8[0].ma_get_inputs(v_rg_mdsa_in[0]);
-        bm8[1].ma_get_inputs(v_rg_mdsa_in[1]);
-        bm8[2].ma_get_inputs(v_rg_mdsa_in[2]);
-        bm8[3].ma_get_inputs(v_rg_mdsa_in[3]);
-        bm8[4].ma_get_inputs(v_rg_mdsa_in[4]);
-        bm8[5].ma_get_inputs(v_rg_mdsa_in[5]);
-        bm8[6].ma_get_inputs(v_rg_mdsa_in[6]);
-        bm8[7].ma_get_inputs(v_rg_mdsa_in[7]);
+        fn_input_sorting_network(bm8, v_rg_mdsa_in);
         rg_mdsa_fsm <= STAGE_1_OUT;
     endrule
 
@@ -64,16 +72,8 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         // Row Sorting Phase
         $display("[MDSA] STARTING MDSA STAGE 2");
         $display("[MDSA]: STAGE 2 INPUTS:", fshow(v_rg_mdsa_in));   
-        bm8[0].ma_get_inputs(v_rg_mdsa_in[0]);
-        bm8[1].ma_get_inputs(v_rg_mdsa_in[1]);
-        bm8[2].ma_get_inputs(v_rg_mdsa_in[2]);
-        bm8[3].ma_get_inputs(v_rg_mdsa_in[3]);
-        bm8[4].ma_get_inputs(v_rg_mdsa_in[4]);
-        bm8[5].ma_get_inputs(v_rg_mdsa_in[5]);
-        bm8[6].ma_get_inputs(v_rg_mdsa_in[6]);
-        bm8[7].ma_get_inputs(v_rg_mdsa_in[7]);
+        fn_input_sorting_network(bm8, v_rg_mdsa_in);
         rg_mdsa_fsm <= STAGE_2_OUT;
-
     endrule
 
     rule rl_collect_outputs_from_stage_2(rg_mdsa_fsm == STAGE_2_OUT);
@@ -109,14 +109,7 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         // Column Sorting Phase
         $display("[MDSA] STARTING MDSA STAGE 3");
         $display("[MDSA]: STAGE 3 INPUTS:", fshow(v_rg_mdsa_in));   
-        bm8[0].ma_get_inputs(v_rg_mdsa_in[0]);
-        bm8[1].ma_get_inputs(v_rg_mdsa_in[1]);
-        bm8[2].ma_get_inputs(v_rg_mdsa_in[2]);
-        bm8[3].ma_get_inputs(v_rg_mdsa_in[3]);
-        bm8[4].ma_get_inputs(v_rg_mdsa_in[4]);
-        bm8[5].ma_get_inputs(v_rg_mdsa_in[5]);
-        bm8[6].ma_get_inputs(v_rg_mdsa_in[6]);
-        bm8[7].ma_get_inputs(v_rg_mdsa_in[7]);
+        fn_input_sorting_network(bm8, v_rg_mdsa_in);
         rg_mdsa_fsm <= STAGE_3_OUT;
 
     endrule
@@ -148,14 +141,8 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         // Row Sorting Phase
         $display("[MDSA] STARTING MDSA STAGE 4");
         $display("[MDSA]: STAGE 4 INPUTS:", fshow(v_rg_mdsa_in));   
-        bm8[0].ma_get_inputs(v_rg_mdsa_in[0]);
-        bm8[1].ma_get_inputs(v_rg_mdsa_in[1]);
-        bm8[2].ma_get_inputs(v_rg_mdsa_in[2]);
-        bm8[3].ma_get_inputs(v_rg_mdsa_in[3]);
-        bm8[4].ma_get_inputs(v_rg_mdsa_in[4]);
-        bm8[5].ma_get_inputs(v_rg_mdsa_in[5]);
-        bm8[6].ma_get_inputs(v_rg_mdsa_in[6]);
-        bm8[7].ma_get_inputs(v_rg_mdsa_in[7]);
+        fn_input_sorting_network(bm8, v_rg_mdsa_in);
+
         rg_mdsa_fsm <= STAGE_4_OUT;
     endrule
 
@@ -189,14 +176,8 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         // Column Sorting Phase
         $display("[MDSA] STARTING MDSA STAGE 5");
         $display("[MDSA]: STAGE 5 INPUTS:", fshow(v_rg_mdsa_in));   
-        bm8[0].ma_get_inputs(v_rg_mdsa_in[0]);
-        bm8[1].ma_get_inputs(v_rg_mdsa_in[1]);
-        bm8[2].ma_get_inputs(v_rg_mdsa_in[2]);
-        bm8[3].ma_get_inputs(v_rg_mdsa_in[3]);
-        bm8[4].ma_get_inputs(v_rg_mdsa_in[4]);
-        bm8[5].ma_get_inputs(v_rg_mdsa_in[5]);
-        bm8[6].ma_get_inputs(v_rg_mdsa_in[6]);
-        bm8[7].ma_get_inputs(v_rg_mdsa_in[7]);
+        fn_input_sorting_network(bm8, v_rg_mdsa_in);
+
         rg_mdsa_fsm <= STAGE_5_OUT;
     endrule
 
@@ -224,14 +205,8 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         // Row Sorting Phase
         $display("[MDSA] STARTING MDSA STAGE 6");
         $display("[MDSA]: STAGE 6 INPUTS:", fshow(v_rg_mdsa_in));   
-        bm8[0].ma_get_inputs(v_rg_mdsa_in[0]);
-        bm8[1].ma_get_inputs(v_rg_mdsa_in[1]);
-        bm8[2].ma_get_inputs(v_rg_mdsa_in[2]);
-        bm8[3].ma_get_inputs(v_rg_mdsa_in[3]);
-        bm8[4].ma_get_inputs(v_rg_mdsa_in[4]);
-        bm8[5].ma_get_inputs(v_rg_mdsa_in[5]);
-        bm8[6].ma_get_inputs(v_rg_mdsa_in[6]);
-        bm8[7].ma_get_inputs(v_rg_mdsa_in[7]);
+        fn_input_sorting_network(bm8, v_rg_mdsa_in);
+
         rg_mdsa_fsm <= STAGE_6_OUT;
     endrule
 
