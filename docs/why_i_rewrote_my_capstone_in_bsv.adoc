@@ -46,7 +46,7 @@ image::CAE.png[pdfwidth=40%,align=center,title="The Compare and Exchange (CAE) B
 - Specify the CAE typedef as a Vector of 2 elements:
 
 [source,BSV]
-include::../bsv/MDSA_bitonic/mdsa_types.bsv[tag=typedef_cae]
+include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines==9..9]
 
 - Declare the method ActionValue `mav_get_sort`:
 
@@ -209,60 +209,63 @@ Final MDSA output: <%h><V <V 'h00000001 'h00000002 'h00000003 'h00000004 'h00000
 Verilog simulation finished
 ```
 
-== References
 
-// 1
-// 2
-// 3
-// 4
-// 5
-// 6
-// 7
-// 8
 
 == Steps to run simulations of the CAE, BM4, BM8 and MDSA_Bitonic in the GitHub Repository
-== Acknowledgements
 
-// The block diagrams and drawings to aid the explaination of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team (names) guided by my UG Professor -(name) at PES Universtiy, Bangalore.  
+. Clone the repository:
 
-// The BSV language [] [] compiler and training material
+    git clone https://github.com/govardhnn/Low_Power_Multidimensional_Sorters.git
 
-// Initial Work on MDSA and its predecessors[][].
+. Navigate the the build directory of the BSV collateral
 
-// Much thanks to my manager (name) and peers (names) for reviewing the blogpost and InCore for permitting to write on this topic.
+    cd bsv/build
+
+. Modify the `makefile.inc` to select the module to simulate
+
+For CAE:
+
+    TB_BSV:= cae_testbench
+
+For BM4:
+
+    TB_BSV:= bm4_testbench
+
+For BM8:
+
+    TB_BSV:= bm8_testbench
+
+For MDSA:
+
+    TB_BSV:= mdsa_bitonic_testbench
+
+. To run the simulation with the bluespec compiler
+    
+    make all_vsim
+
+The generated verilog can be found in the `verilog_dir` directory
+
+Note: To get a vcd dump of the simulation, rerun the executable with the +bscvcd argument.
+Eg.  ./mk_mdsa_bitonic_testbench_vsim +bscvcd
+Or, add the +bscvcd flag to the `v_simulate` target in the Makefile
+
+== Acknowledgements(TODO)
+
+The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team (mailto:sa.samahith@gmail.com[Samahith S A ], mailto:treja.manu@gmail.com[Manogna R], mailto:hiteshramaswamy@gmail.com[Hitesh D ]) guided by my UG Professor - (mailto:kumar.sudeendra@gmail.com[Dr. Sudeendra Kumar]) at PES University, Bangalore.
+
+The BSV language [] [] compiler and libraries reference guide from Bluespec(inc)
+
+Initial Work on MDSA and its predecessors[][]
+
+Much thanks to reviewers ... ... InCore ... 
 
 
+== References
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+. link:https://ieeexplore.ieee.org/document/10234758[Low Power Multidimensional Sorters using Clock Gating and Index Sorting, 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)]
+. link:The Bluespec Compiler(bsc)[https://github.com/B-Lang-org/bsc] and the 
+link:https://github.com/B-Lang-org/bsc?tab=readme-ov-file#documentation[Libraries Reference Guide]
+.  K.E. Batcher, “Sorting Networks and Their Applications,” Proc. AFIPS Proc. Spring Joint Computer Conf., pp. 307-314, 1968.
+. A. Norollah, et al, "RTHS: A Low-Cost High-Performance Real-Time Hardware Sorter, Using a Multidimensional Sorting Algorithm," in IEEE Transactions on Very Large-Scale Integration (VLSI) Systems, vol. 27, no. 7, pp. 1601-1613, July 2019.
+. V. S. Harshini et al, "Design of Hybrid Sorting Unit," 2019 International Conference on Smart Structures and Systems (ICSSS), Chennai, India, 2019, pp. 1-6
 
