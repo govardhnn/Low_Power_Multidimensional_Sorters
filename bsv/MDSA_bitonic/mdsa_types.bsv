@@ -7,7 +7,6 @@ typedef 32 WordLength;
 
 // typedef of CAE inputs
 typedef Vector#(2, Bit#(WordLength)) CAE;
-
 // typedef of BM4 inputs
 typedef Vector#(4, Bit#(WordLength)) BM4;
 

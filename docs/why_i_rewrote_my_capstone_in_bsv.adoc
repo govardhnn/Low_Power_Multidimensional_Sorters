@@ -1,90 +1,101 @@
-=== Why I rewrote my capstone project in BSV
+= Why I rewrote my capstone project in BSV
 
 Author: Sai Govardhan M C +
 Email: sai.govardhan@incoresemi.com
 
 == Introduction
-
-This document outlines the motivation to using Bluespec System Verilog which
+This document outlines the motivation for using Bluespec System Verilog, which
 provides high levels of abstraction to rapidly design hardware microarchitecture.
 
-As it happens with most Electronics students, I started out designing digital design logic, 
-in Verilog, with reference to coding guidelines from the link:http://www.sunburst-design.com/papers/[Sunburst Papers] and careful guidance from my UG professor and course textbooks. 
+As with most ECE/CSE students, I started out designing initial digital
+logic in Verilog, with reference to coding guidelines from professors, 
+coursework, and the link:http://www.sunburst-design.com/papers/[Sunburst Papers].
 
 Specifying designs with parallelism and concurrency in Verilog was always a 
-challenge due to lower levels of abstraction and regular rework to fix synthesis-simulation mismatches.
+challenge due to lower levels of abstraction and regular rework to fix
+synthesis-simulation mismatches. 
+ 
+At InCore, the use of BSV is one of the superpowers that enables small teams 
+like ours to specify complex hardware intuitively, correctly, and efficiently. 
+A year ago, as a novice BSV designer, I decided it would be meaningful to 
+contrast the efforts that my team and I spent during our capstone project  
+by re-implementing the Multi-Dimensional Sorting Algorithm (MDSA) in BSV. 
+This blog collates these insights to establish a strong use-case for teaching
+BSV at universities.
 
-At InCore, the use of BSV is one of the superpowers that enabled a small teams like us to specify 
-complex hardware intuitively, correctly and efficiently. 
-
-During my internship at InCore in 2024, as a novice BSV designer, I decided it 
-would be meaningful to contrast the efforts that my team and I
-spent at college implementing the Multi Dimensional Sorting Algorithm(MDSA) in Verilog - by rewriting the MDSA Bitonic variant in BSV. This blog collates these insights, to establish a strong use-case of BSV at universities.
-
-I shall be diving into the BSV implementation by explaining essential parts of 
-the micro-architecture, and corresponding snippets from the code base.
+In this post, I shall be diving into the BSV implementation by explaining 
+essential parts of the microarchitecture, the ease of specifying them in BSV, 
+and corresponding snippets from the codebase.
 
 More of our work on the taxonomy of sorters, low power methodologies, 
-other variants (Hybrid and Odd-Even sorters) and our ASIC implementation results
-can be referred to in our published paper link:https://ieeexplore.ieee.org/document/10234758[Low Power Multidimensional Sorters using Clock Gating and Index Sorting]. 
+other variants (Hybrid and Odd-Even sorters), and our ASIC implementation results
+can be referred to in our published paper 
+link:https://ieeexplore.ieee.org/document/10234758[Low Power Multidimensional Sorters using Clock Gating and Index Sorting]. 
 
-My complete MDSA Bitonic Implementation in BSV, along with our legacy Verilog implementation can be found in my link:https://github.com/govardhnn/Low_Power_Multidimensional_Sorters[GitHub repository].
+My complete MDSA Bitonic Implementation in BSV, along with our legacy 
+Verilog implementation, can be found in my 
+link:https://github.com/govardhnn/Low_Power_Multidimensional_Sorters[GitHub repository].
 
 == The Compare And Exchange Block
 
-The Compare And Exchange (CAE) block is a fundamental building block of systolic 
-array based hardware sorters. It simply compares two inputs and presents an 
-ascending order output. 
+The `Compare And Exchange` (CAE) block is a fundamental building block of Systolic 
+Array based Parallel Hardware Sorters which sorts two inputs to an ascending order output.
 
-image::CAE.png[]
-_The CAE Block_
+image::CAE.png[pdfwidth=40%,align=center,title="The Compare and Exchange (CAE) Block"]
 
 - Specify the CAE typedef as a Vector of 2 elements:
 
 [source,BSV]
-include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=8..9]
+include::../bsv/MDSA_bitonic/mdsa_types.bsv[tag=typedef_cae]
 
+- Declare the method ActionValue `mav_get_sort`:
 
-- Declare the method ActionValue 'mav_get_sort':
-
-The CAE block checks if cae_in[0] is greated that cae_in[1] and uses the Vector 
-to Vector `reverse` function to swap the values.  
+The CAE block checks if `cae_in[0]` is greater than `cae_in[1]` and uses the 
+inbuilt Vector to Vector `reverse` function to swap the values.  
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/cae.bsv[lines=38..43]
 
 
 == The Bitonic Sorting Unit
-
 The Bitonic Sorting Unit is a network of 24 such CAE blocks, arranged as depicted 
-below. This network sorts 8 input elements in ascending order at the end of sig stages.
+below. This network sorts eight input elements in ascending order at the end of 
+six stages.
 
-image::BM8.png[]
-_The Bitonic Sorting Network_
+image::BM8.png[pdfwidth=50%,align=center,title="The Bitonic Merge Sorting Network"]
 
 === The BM4 sorter
-We could very easily modularize this design by creating an intermediate BM4 unit 
-as a two stage - four input sorter, from the above diagram, and specify the two methods
-for input and output as follows:
 
-- We specify the intermediate pipeline as:
+We could easily modularize a part of this design, the BM4 unit,
+by creating an intermediate two-stage, four-input sorter,
+and specify the two methods for input and output as follows:
+
+image::BM4.png[pdfwidth=10%,align=center,title="The BM4 sorter Network"]
+
+- Declare a typedef for BM4 as a vector of 4 inputs:
+
+[source,BSV]
+include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=12]
+
+- Specify the intermediate pipeline as a register of the BM4 type:
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/bm4.bsv[lines=59]
 
-- Perform the first stage sorting with the inputs, by routing the inputs at index
-0 and 3 to the CAE-0, and 1 and 2 to CAE-1 block:
+- First stage of sorting with the inputs, by routing the inputs at indices
+0 and 3 to CAE-0, and 1 and 2 to CAE-1 block. We use the inbuilt vector function
+vec() to combine multiple elements into a vector:
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/bm4.bsv[lines=68..71]
 
-- Perform the second stage sorting with the intermediate sorted values by routing the pipeline outputs at index
-0 and 1 to the CAE-0, and 2 and 3 to CAE-1 block:
+- Perform the second stage sorting with the intermediate sorted values by routing the pipeline outputs at indices
+0 and 1 to CAE-0, and 2 and 3 to CAE-1 block:
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/bm4.bsv[lines=79..80]
 
-- And return the outputs as:
+- Return the outputs as:
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/bm4.bsv[lines=83..83]
@@ -92,15 +103,15 @@ include::../bsv/MDSA_bitonic/bm4.bsv[lines=83..83]
 === The BM8 sorter
 
 Now with the abstraction of using a BM4 sorter, we can proceed to design the
- complete Bitonic Merge 8 sorter as follows:
+complete Bitonic Merge 8 input sorter as follows:
 
-- Instantiate the 5 intermediate registers pipelines:
+- Instantiate the 5 intermediate register pipelines:
 
 [source,BSV]
-include::../bsv/MDSA_bitonic/bm8.bsv[lines=54..54]
+include::../bsv/MDSA_bitonic/bm8.bsv[lines=45..45]
 
-- Pass the inputs the the sorter and pass them through the network defined
-for each stage, while storing the intermediate values in the pipeline registers:
+- Pass the inputs through the network defined for each stage of the BM8, 
+while storing the intermediate values in the above pipeline registers:
 
 - Stage 1:
 
@@ -109,34 +120,36 @@ include::../bsv/MDSA_bitonic/bm8.bsv[lines=127..139]
 
 - Stage 2:
 
-Pass the outputs of the first stage to the BM4 sorter:
+Pass the outputs of the first stage to the BM4 sorter, and register their output
+for the third stage:
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/bm8.bsv[lines=55..56]
 
-Register the outputs of the BM4 sorters for the third stage:
-
 [source,BSV]
-include::../bsv/MDSA_bitonic/bm8.bsv[lines=65..71]
+include::../bsv/MDSA_bitonic/bm8.bsv[lines=64..71]
 
 \... and so on for the remaining stages.
 
-== The MDSA Algorithm Implementation
+=== The MDSA Algorithm Implementation
 
-The MDSA algorithm stands out in its use of Parallel Hardware Sorters(PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses 8 such units to sort 64 elements in 6 stages by alternating between row and column sorting, and rerouting the order of outputs(ascending/descending).
+The MDSA algorithm efficiently uses Parallel Hardware Sorters (PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units 
+to sort 64 elements in 6 stages by only alternating between row and column sorting, and rerouting the order of outputs (ascending/descending).
 
-image::MDSA.png[]
-_The block diagram of the MDSA Architecture_
+image::MDSA.png[pdfwidth=50%,align=center,title="The block diagram of the MDSA Architecture"]
 
-image::MDSA_FSM.png[]
-_The FSM that implements the MDS-Algorithm_
+==== MDSA Agorithm FSM
 
-We specify the MDSA_64 type
+image::MDSA_FSM.png[pdfwidth=50%,align=center,title="The FSM that implements the MDS-Algorithm"]
+
+We specify the `MDSA_64` type which is a multidimensional 8x8 vector 
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=17..18]
 
+
 To create a 64 record register buffer specified as:
+
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=34]
 
@@ -145,8 +158,7 @@ And use this helper function to send inputs to the MDSA sorter network:
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=15..27]
 
-To create the 
-Stage 1: Column Sorting 
+==== Stage 1: Column Sorting 
 
 - Sending the inputs to the Eight BM8 sorters:
 
@@ -158,12 +170,13 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=40..46]
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=52..59]
 
+- Transposing the output: We can use the inbuilt transpose function
+in BSV to alternate between the row and column sorting between the phases of the MDSA.
 
-Transposing the output
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=62]
 
-Stage 2: Row Sorting 
+==== Stage 2: Row Sorting 
 
 - Sending the inputs to the Eight BM8 sorters:
 
@@ -176,19 +189,20 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=71..77]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=84..95]
 
 Transposing the output
+
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=98]
 
-/... and so on for the remaining stages.
+\... and so on for the remaining stages as per the MDSA Algorithm FSM.
 
-Ultimately, an ideal 64 numbers all in descending order sent as input:
+Ultimately, an ideal test case where all 64 inputs specified in descending order:
 
 ```
 [MDSA] STARTING MDSA STAGE 1
 [MDSA]: STAGE 1 INPUTS:<V <V 'h00000040 'h0000003f 'h0000003e 'h0000003d 'h0000003c 'h0000003b 'h0000003a 'h00000039  > <V 'h00000038 'h00000037 'h00000036 'h00000035 'h00000034 'h00000033 'h00000032 'h00000031  > <V 'h00000030 'h0000002f 'h0000002e 'h0000002d 'h0000002c 'h0000002b 'h0000002a 'h00000029  > <V 'h00000028 'h00000027 'h00000026 'h00000025 'h00000024 'h00000023 'h00000022 'h00000021  > <V 'h00000020 'h0000001f 'h0000001e 'h0000001d 'h0000001c 'h0000001b 'h0000001a 'h00000019  > <V 'h00000018 'h00000017 'h00000016 'h00000015 'h00000014 'h00000013 'h00000012 'h00000011  > <V 'h00000010 'h0000000f 'h0000000e 'h0000000d 'h0000000c 'h0000000b 'h0000000a 'h00000009  > <V 'h00000008 'h00000007 'h00000006 'h00000005 'h00000004 'h00000003 'h00000002 'h00000001  >  >
 ```
 
-Shall be sorted in 6 stages to:
+Shall be sorted in 6 stages to ascending order as follows:
 
 ```
 Final MDSA output: <%h><V <V 'h00000001 'h00000002 'h00000003 'h00000004 'h00000009 'h0000000a 'h0000000b 'h0000000c  > <V 'h00000005 'h00000006 'h00000007 'h00000008 'h0000000d 'h0000000e 'h0000000f 'h00000010  > <V 'h00000011 'h00000012 'h00000013 'h00000014 'h00000019 'h0000001a 'h0000001b 'h0000001c  > <V 'h00000015 'h00000016 'h00000017 'h00000018 'h0000001d 'h0000001e 'h0000001f 'h00000020  > <V 'h00000021 'h00000022 'h00000023 'h00000024 'h00000029 'h0000002a 'h0000002b 'h0000002c  > <V 'h00000025 'h00000026 'h00000027 'h00000028 'h0000002d 'h0000002e 'h0000002f 'h00000030  > <V 'h00000031 'h00000032 'h00000033 'h00000034 'h00000039 'h0000003a 'h0000003b 'h0000003c  > <V 'h00000035 'h00000036 'h00000037 'h00000038 'h0000003d 'h0000003e 'h0000003f 'h00000040  >  >
@@ -206,7 +220,7 @@ Verilog simulation finished
 // 7
 // 8
 
-
+== Steps to run simulations of the CAE, BM4, BM8 and MDSA_Bitonic in the GitHub Repository
 == Acknowledgements
 
 // The block diagrams and drawings to aid the explaination of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team (names) guided by my UG Professor -(name) at PES Universtiy, Bangalore.  
