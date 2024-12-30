@@ -1,29 +1,32 @@
-= Why I rewrote my capstone project in BSV
+= Why I rewrote my capstone project in Bluespec System Verilog
 
 Author: Sai Govardhan M C +
 Email: sai.govardhan@incoresemi.com
 
 == Introduction
+
 This document outlines the motivation for using Bluespec System Verilog, which
 provides high levels of abstraction to rapidly design hardware microarchitecture.
 
-As with most ECE/CSE students, I started out designing initial digital
+Like most undergraduate students, I started out designing initial digital
 logic in Verilog, with reference to coding guidelines from professors, 
-coursework, and the link:http://www.sunburst-design.com/papers/[Sunburst Papers].
-
-Specifying designs with parallelism and concurrency in Verilog was always a 
+coursework, and the link:http://www.sunburst-design.com/papers/[sunburst papers].
+Back then, specifying designs dealing with parallelism and concurrency was always a 
 challenge due to lower levels of abstraction and regular rework to fix
 synthesis-simulation mismatches. 
  
-At InCore, the use of BSV is one of the superpowers that enables small teams 
-like ours to specify complex hardware intuitively, correctly, and efficiently. 
-A year ago, as a novice BSV designer, I decided it would be meaningful to 
-contrast the efforts that my team and I spent during our capstone project  
-by re-implementing the Multi-Dimensional Sorting Algorithm (MDSA) in BSV. 
-This blog collates these insights to establish a strong use-case for teaching
-BSV at universities.
+At link:https://incoresemi.com/[InCore], the use of BSV is one of the 
+superpowers that enables small teams like ours to specify complex 
+hardware intuitively, correctly, and efficiently. 
 
-In this post, I shall be diving into the BSV implementation by explaining 
+A year ago, as a novice BSV designer, I decided it would be interesting
+and meaningful to contrast the efforts that my team and I spent during our 
+capstone project by re-implementing the Multi-Dimensional Sorting Algorithm (MDSA) 
+in a High-Level HDL - BSV. 
+As an outcome, this blog collates these insights to establish a strong case for teaching
+and using BSV at universities.
+
+In this post, I shall be diving into my BSV implementation by explaining 
 essential parts of the microarchitecture, the ease of specifying them in BSV, 
 and corresponding snippets from the codebase.
 
@@ -43,7 +46,7 @@ Array based Parallel Hardware Sorters which sorts two inputs to an ascending ord
 
 image::CAE.png[pdfwidth=40%,align=center,title="The Compare and Exchange (CAE) Block"]
 
-- Specify the CAE typedef as a Vector of 2 elements:
+- Specify the CAE typedef as a Vector of 2 elements of width `WordLength`:
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines==9..9]
@@ -58,24 +61,33 @@ include::../bsv/MDSA_bitonic/cae.bsv[lines=38..43]
 
 
 == The Bitonic Sorting Unit
-The Bitonic Sorting Unit is a network of 24 such CAE blocks, arranged as depicted 
-below. This network sorts eight input elements in ascending order at the end of 
+
+The Bitonic Sorting Unit is a network of 24 such CAE blocks, intricately 
+arranged as depicted below. 
+
+This network sorts eight input elements in ascending order at the end of 
 six stages.
+
+To read more about the Bitonic Sorting Network, refer to the seminal paper by
+Batcher[4].
 
 image::BM8.png[pdfwidth=50%,align=center,title="The Bitonic Merge Sorting Network"]
 
+If you look closely, we can take parts of
+the above BM8 architecture and modularize them. 
+
 === The BM4 sorter
 
-We could easily modularize a part of this design, the BM4 unit,
+We could modularize a part of this design, the BM4 unit,
 by creating an intermediate two-stage, four-input sorter,
 and specify the two methods for input and output as follows:
 
 image::BM4.png[pdfwidth=10%,align=center,title="The BM4 sorter Network"]
 
-- Declare a typedef for BM4 as a vector of 4 inputs:
+- Declare a typedef for `BM4` as a vector of 4 inputs of width `WordLength`:
 
 [source,BSV]
-include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=12]
+include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=11]
 
 - Specify the intermediate pipeline as a register of the BM4 type:
 
@@ -110,13 +122,13 @@ complete Bitonic Merge 8 input sorter as follows:
 [source,BSV]
 include::../bsv/MDSA_bitonic/bm8.bsv[lines=45..45]
 
-- Pass the inputs through the network defined for each stage of the BM8, 
+- Pass the inputs through the sorting network defined for each stage of the BM8, 
 while storing the intermediate values in the above pipeline registers:
 
 - Stage 1:
 
 [source,BSV]
-include::../bsv/MDSA_bitonic/bm8.bsv[lines=127..139]
+include::../bsv/MDSA_bitonic/bm8.bsv[lines=124..139]
 
 - Stage 2:
 
@@ -129,7 +141,7 @@ include::../bsv/MDSA_bitonic/bm8.bsv[lines=55..56]
 [source,BSV]
 include::../bsv/MDSA_bitonic/bm8.bsv[lines=64..71]
 
-\... and so on for the remaining stages.
+\... and so on for the remaining stages 4 to 6.
 
 === The MDSA Algorithm Implementation
 
@@ -162,6 +174,8 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=15..27]
 
 - Sending the inputs to the Eight BM8 sorters:
 
+image::MDSA_FSM_P1.png[pdfwidth=50%,align=center,title="The First Phase of the MDSA Algorithm"]
+
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=40..46]
 
@@ -180,6 +194,8 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=62]
 
 - Sending the inputs to the Eight BM8 sorters:
 
+image::MDSA_FSM_P2.png[pdfwidth=50%,align=center,title="The Second Phase of the MDSA Algorithm"]
+
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=71..77]
 
@@ -193,7 +209,7 @@ Transposing the output
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=98]
 
-\... and so on for the remaining stages as per the MDSA Algorithm FSM.
+\... and so on for the remaining stages 3 to 6 as per the MDSA Algorithm FSM.
 
 Ultimately, an ideal test case where all 64 inputs specified in descending order:
 
@@ -239,7 +255,7 @@ For MDSA:
 
     TB_BSV:= mdsa_bitonic_testbench
 
-. To run the simulation with the bluespec compiler
+. To run the simulation with the Bluespec Compiler (bsc):
     
     make all_vsim
 
@@ -251,20 +267,19 @@ Or, add the +bscvcd flag to the `v_simulate` target in the Makefile
 
 == Acknowledgements(TODO)
 
-The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team (mailto:sa.samahith@gmail.com[Samahith S A ], mailto:treja.manu@gmail.com[Manogna R], mailto:hiteshramaswamy@gmail.com[Hitesh D ]) guided by my UG Professor - (mailto:kumar.sudeendra@gmail.com[Dr. Sudeendra Kumar]) at PES University, Bangalore.
+The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D guided by my UG Professor Dr. Sudeendra Kumar at PES University, Bangalore.
 
-The BSV language [] [] compiler and libraries reference guide from Bluespec(inc)
+The BSV languare compiler [2] and libraries reference guide from Bluespec(inc)
 
-Initial Work on MDSA and its predecessors[][]
+Initial Work on MDSA [5] and PHSA sorter variants[6]
 
 Much thanks to reviewers ... ... InCore ... 
-
 
 == References
 
 . link:https://ieeexplore.ieee.org/document/10234758[Low Power Multidimensional Sorters using Clock Gating and Index Sorting, 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)]
-. link:The Bluespec Compiler(bsc)[https://github.com/B-Lang-org/bsc] and the 
-link:https://github.com/B-Lang-org/bsc?tab=readme-ov-file#documentation[Libraries Reference Guide]
+. link:https://github.com/B-Lang-org/bsc[The Bluespec Compiler(bsc)]] 
+. link:https://github.com/B-Lang-org/bsc?tab=readme-ov-file#documentation[Libraries Reference Guide]
 .  K.E. Batcher, “Sorting Networks and Their Applications,” Proc. AFIPS Proc. Spring Joint Computer Conf., pp. 307-314, 1968.
 . A. Norollah, et al, "RTHS: A Low-Cost High-Performance Real-Time Hardware Sorter, Using a Multidimensional Sorting Algorithm," in IEEE Transactions on Very Large-Scale Integration (VLSI) Systems, vol. 27, no. 7, pp. 1601-1613, July 2019.
 . V. S. Harshini et al, "Design of Hybrid Sorting Unit," 2019 International Conference on Smart Structures and Systems (ICSSS), Chennai, India, 2019, pp. 1-6
