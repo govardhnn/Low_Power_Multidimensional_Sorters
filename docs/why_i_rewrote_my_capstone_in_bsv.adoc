@@ -288,13 +288,21 @@ In the BSV implementation of the MDSA
 Note: you can disable the $display statements from being generated in the verilog 
 generation phase by removing the define `-D DISPLAY` in the Makefile
 
-== Wait how does the gate-count compare?
+== Wait how does the gate-count compare BSV vs Verilog implementation?
 
 You can run a basic yosys synth at the bsv/build
 
     make yosys_synth
 
 And the synthesis gate count is:
+
+    Number of wires:             108735
+    Number of wire bits:         243796
+    Number of public wires:        2576
+    Number of public wire bits:  101182
+    Number of memories:               0
+    Number of memory bits:            0
+    Number of processes:              0
     Number of cells:              90410
 
 For the legacy verilog MDSA implementation:
@@ -306,10 +314,18 @@ and run:
     yosys -s synth.ys
 
 And the synthesis gate count is:
-   Number of cells:             121574
+
+    Number of wires:             143051
+    Number of wire bits:         247433
+    Number of public wires:        1674
+    Number of public wire bits:   56173
+    Number of memories:               0
+    Number of memory bits:            0
+    Number of processes:              0
+    Number of cells:             121574
 
 There you go! A reduction in gate-count from 121k to 90k. 
-A staggering 25% reduction in number of cells - using a language much abstract, intuitive and efficient. 
+A staggering *25.65%* reduction in number of cells - using a language much abstract, intuitive and efficient. 
 
 == Acknowledgements(TODO)
 
@@ -319,7 +335,7 @@ The BSV languare compiler [2] and libraries reference guide from Bluespec(inc)
 
 Initial Work on MDSA [5] and PHSA sorter variants[6]
 
-Much thanks to reviewers ... ... InCore ... 
+<reviewers, thanks>
 
 == References
 
