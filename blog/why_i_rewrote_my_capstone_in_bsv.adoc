@@ -1,11 +1,11 @@
-= Why I rewrote my capstone project in Bluespec System Verilog
+= Why I rewrote my capstone project in Bluespec SystemVerilog
 
 Author: Sai Govardhan M C +
 Email: sai.govardhan@incoresemi.com
 
 == Introduction
 
-This document outlines the motivation for using Bluespec System Verilog, which
+This document outlines the motivation for using Bluespec SystemVerilog, which
 provides high levels of abstraction to rapidly design hardware microarchitecture.
 
 Like most undergraduate students, I started out designing initial digital
