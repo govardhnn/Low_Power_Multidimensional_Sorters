@@ -1,0 +1,23 @@
+# Read all Verilog files
+read_verilog MDSA_top.v
+read_verilog MDSA_sorter.v
+read_verilog BSN.v
+read_verilog CAS_dual.v
+read_verilog MDSA_FSM.v
+
+# Set top module and check hierarchy
+hierarchy -check -top MDSA_top
+
+# Start synthesis
+proc
+opt
+memory
+opt
+techmap
+opt
+
+# Map to gates and optimize
+abc -g gates
+
+# Show statistics
+stat

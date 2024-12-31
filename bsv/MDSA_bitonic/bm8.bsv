@@ -51,7 +51,7 @@ module mk_bm8(Ifc_bm8);
     Vector#(4, Ifc_cae) cae_stage_6 <- replicateM(mk_cae());
 
 rule rl_send_inputs_to_bm4 if (rg_stage == BM4_INPUT);
-    $display("[%0d]",$time,"[BM8]:[PIPE] Stage 1:", fshow(pipe[0]));
+    fn_display($format("[BM8]:[PIPE] Stage 1:", fshow(pipe[0])));
     bm4_stage_2_3[0].ma_get_inputs(vec(pipe[0][0], pipe[0][1], pipe[0][2], pipe[0][3]));
     bm4_stage_2_3[1].ma_get_inputs(vec(pipe[0][4], pipe[0][5], pipe[0][6], pipe[0][7]));
     rg_stage <= BM4_PROCESSING;
@@ -74,7 +74,7 @@ rule rl_get_outputs_from_bm4 if (rg_stage == BM4_PROCESSING);
 endrule
 
 rule rl_bm8_stage_4 if (rg_stage == BM4_DONE);
-    $display("[%0d]",$time,"[BM8]:[PIPE] Stage 3:", fshow(pipe[1]));
+    fn_display($format("[BM8]:[PIPE] Stage 3:", fshow(pipe[1])));
 
     let lv_stage_4_sort_1 <- cae_stage_4[0].mav_get_sort(vec(pipe[1][0], pipe[1][7]));  
     let lv_stage_4_sort_2 <- cae_stage_4[1].mav_get_sort(vec(pipe[1][1], pipe[1][6]));
@@ -96,7 +96,7 @@ endrule
 
 rule rl_bm8_stage_5 if (rg_stage == BM8_STAGE_4_DONE);
     
-    $display("[%0d]",$time,"[BM8]:[PIPE] Stage 4:", fshow(pipe[2]));
+    fn_display($format("[BM8]:[PIPE] Stage 4:", fshow(pipe[2])));
 
     let lv_stage_5_sort_1 <- cae_stage_5[0].mav_get_sort(vec(pipe[2][0], pipe[2][2]));
     let lv_stage_5_sort_2 <- cae_stage_5[1].mav_get_sort(vec(pipe[2][1], pipe[2][3]));
@@ -110,7 +110,7 @@ endrule
 
 rule rl_bm8_stage_6 if (rg_stage == BM8_STAGE_5_DONE);
     
-    $display("[%0d]",$time,"[BM8]:[PIPE] Stage 5:", fshow(pipe[3]));
+    fn_display($format("[BM8]:[PIPE] Stage 5:", fshow(pipe[3])));
 
     let lv_stage_6_sort_1 <- cae_stage_6[0].mav_get_sort(vec(pipe[3][0], pipe[3][1]));
     let lv_stage_6_sort_2 <- cae_stage_6[1].mav_get_sort(vec(pipe[3][2], pipe[3][3]));

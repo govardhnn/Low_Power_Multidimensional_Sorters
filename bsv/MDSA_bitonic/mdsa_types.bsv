@@ -46,5 +46,18 @@ typedef enum {
     , MDSA_DONE
     } MDSA_FSM deriving (Bits, Eq, FShow);
 
+`ifdef DISPLAY 
+    function Action fn_display(Fmt display_statement);
+        action
+            $display(display_statement);
+        endaction
+    endfunction
+`else 
+    function Action fn_display(Fmt display_statement);
+        action 
+            noAction;
+        endaction
+    endfunction
+`endif
 
 endpackage

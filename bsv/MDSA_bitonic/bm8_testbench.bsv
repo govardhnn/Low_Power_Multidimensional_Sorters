@@ -36,7 +36,7 @@ module mk_bm8_testbench(Empty);
     Ifc_bm8 bm8 <- mk_bm8;
 
     rule rl_send_data;
-        $display(" -- TB -- Sending data:", fshow(rg_bm8_in));
+        fn_display(" -- TB -- Sending data:", fshow(rg_bm8_in));
         bm8.ma_get_inputs(rg_bm8_in);
     endrule
 
@@ -44,7 +44,7 @@ module mk_bm8_testbench(Empty);
              
         let lv_out <- bm8.mav_return_outputs();
 
-        $display(" -- TB - Got data:", fshow(lv_out));
+        fn_display(" -- TB - Got data:", fshow(lv_out));
         $finish;
     endrule
 

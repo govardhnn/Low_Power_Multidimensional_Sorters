@@ -7,9 +7,10 @@ import bm8 :: *;
 interface Ifc_mdsa_bitonic;
     method Action ma_input_mdsa (MDSA_64 mdsa);
     method ActionValue#(MDSA_64) mav_return_outputs;
-    method Action ma_start();
+
 endinterface
 
+(*synthesize*)
 module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
 
     function fn_input_sorting_network(Vector#(8, Ifc_bm8) bm8
@@ -39,8 +40,8 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
     /*------------------ STAGE 1 ----------------*/
     rule rl_mdsa_send_inputs_to_stage_1(rg_mdsa_fsm == STAGE_1_IN);
         // Column Sorting Phase
-        $display("[%0d]",$time,"[MDSA] STARTING MDSA STAGE 1");
-        $display("[%0d]",$time,"[MDSA]: STAGE 1 INPUTS:", fshow(v_rg_mdsa_in));   
+        fn_display($format("[MDSA] STARTING MDSA STAGE 1"));
+        fn_display($format("[MDSA]: STAGE 1 INPUTS:", fshow(v_rg_mdsa_in)));   
         fn_input_sorting_network(bm8, v_rg_mdsa_in);
         rg_mdsa_fsm <= STAGE_1_OUT;
     endrule
@@ -62,16 +63,16 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         v_rg_mdsa_in <= transpose(lv_s1_output);
         
         rg_mdsa_fsm <= STAGE_2_IN;
-        $display("[%0d]",$time,"[MDSA]: STAGE 1 DONE");
-        $display("[%0d]",$time,"[MDSA]: STAGE 1 OUTPUTS:", fshow(lv_s1_output));
+        fn_display($format("[MDSA]: STAGE 1 DONE"));
+        fn_display($format("[MDSA]: STAGE 1 OUTPUTS:", fshow(lv_s1_output)));
     endrule
 
     /*------------------ STAGE 2 ----------------*/
     
     rule rl_mdsa_send_inputs_to_stage_2(rg_mdsa_fsm == STAGE_2_IN);
         // Row Sorting Phase
-        $display("[%0d]",$time,"[MDSA] STARTING MDSA STAGE 2");
-        $display("[%0d]",$time,"[MDSA]: STAGE 2 INPUTS:", fshow(v_rg_mdsa_in));   
+        fn_display($format("[MDSA] STARTING MDSA STAGE 2"));
+        fn_display($format("[MDSA]: STAGE 2 INPUTS:", fshow(v_rg_mdsa_in)));   
         fn_input_sorting_network(bm8, v_rg_mdsa_in);
         rg_mdsa_fsm <= STAGE_2_OUT;
     endrule
@@ -98,8 +99,8 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         v_rg_mdsa_in <= transpose(lv_s2_output);
         
         rg_mdsa_fsm <= STAGE_3_IN;
-        $display("[%0d]",$time,"[MDSA]: STAGE 2 DONE");
-        $display("[%0d]",$time,"[MDSA]: STAGE 2 OUTPUTS:", fshow(lv_s2_output));
+        fn_display($format("[MDSA]: STAGE 2 DONE"));
+        fn_display($format("[MDSA]: STAGE 2 OUTPUTS:", fshow(lv_s2_output)));
     endrule
 
     /*------------------ STAGE 3 ----------------*/
@@ -107,8 +108,8 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
     rule rl_mdsa_send_inputs_to_stage_3(rg_mdsa_fsm == STAGE_3_IN);
 
         // Column Sorting Phase
-        $display("[%0d]",$time,"[MDSA] STARTING MDSA STAGE 3");
-        $display("[%0d]",$time,"[MDSA]: STAGE 3 INPUTS:", fshow(v_rg_mdsa_in));   
+        fn_display($format("[MDSA] STARTING MDSA STAGE 3"));
+        fn_display($format("[MDSA]: STAGE 3 INPUTS:", fshow(v_rg_mdsa_in)));   
         fn_input_sorting_network(bm8, v_rg_mdsa_in);
         rg_mdsa_fsm <= STAGE_3_OUT;
 
@@ -130,8 +131,8 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         v_rg_mdsa_in <= transpose(lv_s3_output);
         
         rg_mdsa_fsm <= STAGE_4_IN;
-        $display("[%0d]",$time,"[MDSA]: STAGE 3 DONE");
-        $display("[%0d]",$time,"[MDSA]: STAGE 3 OUTPUTS:", fshow(lv_s3_output));
+        fn_display($format("[MDSA]: STAGE 3 DONE"));
+        fn_display($format("[MDSA]: STAGE 3 OUTPUTS:", fshow(lv_s3_output)));
 
     endrule
 
@@ -139,8 +140,8 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
 
     rule rl_mdsa_send_inputs_to_stage_4(rg_mdsa_fsm == STAGE_4_IN);
         // Row Sorting Phase
-        $display("[%0d]",$time,"[MDSA] STARTING MDSA STAGE 4");
-        $display("[%0d]",$time,"[MDSA]: STAGE 4 INPUTS:", fshow(v_rg_mdsa_in));   
+        fn_display($format("[MDSA] STARTING MDSA STAGE 4"));
+        fn_display($format("[MDSA]: STAGE 4 INPUTS:", fshow(v_rg_mdsa_in)));   
         fn_input_sorting_network(bm8, v_rg_mdsa_in);
 
         rg_mdsa_fsm <= STAGE_4_OUT;
@@ -168,14 +169,14 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         v_rg_mdsa_in <= transpose(lv_s4_output);
         
         rg_mdsa_fsm <= STAGE_5_IN;
-        $display("[%0d]",$time,"[MDSA]: STAGE 4 DONE");
-        $display("[%0d]",$time,"[MDSA]: STAGE 4 OUTPUTS:", fshow(lv_s4_output));
+        fn_display($format("[MDSA]: STAGE 4 DONE"));
+        fn_display($format("[MDSA]: STAGE 4 OUTPUTS:", fshow(lv_s4_output)));
     endrule
 
     rule rl_mdsa_send_inputs_to_stage_5(rg_mdsa_fsm == STAGE_5_IN);
         // Column Sorting Phase
-        $display("[%0d]",$time,"[MDSA] STARTING MDSA STAGE 5");
-        $display("[%0d]",$time,"[MDSA]: STAGE 5 INPUTS:", fshow(v_rg_mdsa_in));   
+        fn_display($format("[MDSA] STARTING MDSA STAGE 5"));
+        fn_display($format("[MDSA]: STAGE 5 INPUTS:", fshow(v_rg_mdsa_in)));   
         fn_input_sorting_network(bm8, v_rg_mdsa_in);
 
         rg_mdsa_fsm <= STAGE_5_OUT;
@@ -197,14 +198,14 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         v_rg_mdsa_in <= transpose(lv_s5_output);
         
         rg_mdsa_fsm <= STAGE_6_IN;
-        $display("[%0d]",$time,"[MDSA]: STAGE 5 DONE");
-        $display("[%0d]",$time,"[MDSA]: STAGE 5 OUTPUTS:", fshow(lv_s5_output));
+        fn_display($format("[MDSA]: STAGE 5 DONE"));
+        fn_display($format("[MDSA]: STAGE 5 OUTPUTS:", fshow(lv_s5_output)));
     endrule
 
     rule rl_mdsa_send_inputs_to_stage_6(rg_mdsa_fsm == STAGE_6_IN);
         // Row Sorting Phase
-        $display("[%0d]",$time,"[MDSA] STARTING MDSA STAGE 6");
-        $display("[%0d]",$time,"[MDSA]: STAGE 6 INPUTS:", fshow(v_rg_mdsa_in));   
+        fn_display($format("[MDSA] STARTING MDSA STAGE 6"));
+        fn_display($format("[MDSA]: STAGE 6 INPUTS:", fshow(v_rg_mdsa_in)));   
         fn_input_sorting_network(bm8, v_rg_mdsa_in);
 
         rg_mdsa_fsm <= STAGE_6_OUT;
@@ -227,20 +228,17 @@ module mk_mdsa_bitonic(Ifc_mdsa_bitonic);
         
         rg_mdsa_fsm <= MDSA_DONE;
 
-        $display("[%0d]",$time,"[MDSA]: STAGE 6 DONE");
-        $display("[%0d]",$time,"[MDSA]: STAGE 6 OUTPUTS:", fshow(lv_s6_output));
+        fn_display($format("[MDSA]: STAGE 6 DONE"));
+        fn_display($format("[MDSA]: STAGE 6 OUTPUTS:", fshow(lv_s6_output)));
     endrule
     method Action ma_input_mdsa (MDSA_64 mdsa_in);
         v_rg_mdsa_in <= mdsa_in;
-    endmethod
-
-    method Action ma_start;
         rg_mdsa_fsm <= STAGE_1_IN;
     endmethod
 
     method ActionValue#(MDSA_64) mav_return_outputs if (rg_mdsa_fsm == MDSA_DONE);
         rg_mdsa_fsm <= IDLE;
-        $display("[%0d]",$time,"[MDSA] DONE. Returning outputs:", fshow(v_rg_mdsa_in));
+        fn_display($format("[MDSA] DONE. Returning outputs:", fshow(v_rg_mdsa_in)));
         return(v_rg_mdsa_in);
     endmethod
 endmodule

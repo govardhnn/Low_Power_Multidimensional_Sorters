@@ -14,6 +14,10 @@ BSC_PATHS = -p $(FOLDER)/bsv/$(EG)/:$(FOLDER)/bsv/Common:%/Libraries
 V_DIRS = -vdir verilog_dir -bdir build_v -info-dir build_v
 VSIM_EXE = $(TOPMODULE)_vsim
 
+# Disable displays by removing the define DISPLAY
+# DEFINES = "" 
+DEFINES = DISPLAY
+
 .PHONY: all_vsim
 all_vsim: clean verilog v_link v_simulate
 
@@ -26,7 +30,7 @@ verilog_dir:
 .PHONY: verilog
 verilog: build_v verilog_dir
 	@echo Compiling for Verilog ...
-	bsc -u -verilog $(V_DIRS) $(BSC_COMP_FLAGS) $(BSC_PATHS) -g $(TOPMODULE) $(TOPFILE)
+	bsc -u -verilog $(V_DIRS)  +RTS -Ksize -RTS -D $(DEFINES) $(BSC_COMP_FLAGS) $(BSC_PATHS) -g  $(TOPMODULE) $(TOPFILE)
 	@echo Compiling for Verilog finished
 
 .PHONY: v_link
@@ -45,3 +49,7 @@ v_simulate:
 .PHONY: clean
 clean:
 	rm -rf build_bsim build_v verilog_dir *~ *.vcd *_vsim *$(TOPMODULE)*  
+
+.PHONY: yosys_synth
+yosys_synth:
+	yosys -s synth.ys

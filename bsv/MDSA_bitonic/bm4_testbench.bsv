@@ -44,7 +44,7 @@ module mk_bm4_testbench(Empty);
     Reg#(BM4) rg_bm4_input <- mkReg(initialVector);
 
     rule rl_send_data(!rg_sent_bm4_test);
-        $display(" -- TB -- Sending data: ", fshow(rg_bm4_input));
+        fn_display(" -- TB -- Sending data: ", fshow(rg_bm4_input));
 
         bm4.ma_get_inputs(rg_bm4_input);
 
@@ -53,7 +53,7 @@ module mk_bm4_testbench(Empty);
 
     rule rl_get_result(rg_sent_bm4_test);
         let lv_out <- bm4.mav_return_output();
-        $display(" -- TB -- Output is", fshow(lv_out));
+        fn_display(" -- TB -- Output is", fshow(lv_out));
         $finish;
     endrule
 

@@ -36,10 +36,10 @@ module mk_cae_testbench (Empty);
    Reg#(CAE) rg_cae <- mkReg(v_cae_test_inputs);
 
    rule rl_tb_get_data(True);
-      $display("Sending data: ", fshow(rg_cae));
+      fn_display("Sending data: ", fshow(rg_cae));
 
       let lv_numbers <- cae_inst.mav_get_sort(rg_cae);
-      $display("Received data: ", fshow(lv_numbers));   
+      fn_display("Received data: ", fshow(lv_numbers));   
       
       $finish;
    endrule

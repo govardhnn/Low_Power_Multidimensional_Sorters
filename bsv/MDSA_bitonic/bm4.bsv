@@ -27,7 +27,7 @@ package bm4;
 import cae :: *;
 import Vector :: *;
 import mdsa_types :: *;
-import BuildVector   ::*;
+import BuildVector   ::*; 
 
 // Function to combine two BM4 inputs into a BM8 input
 // This enables hierarchical construction of larger bitonic mergers
@@ -63,7 +63,7 @@ module mk_bm4(Ifc_bm4);
 
    // Stage 1: Initial parallel comparisons
    method Action ma_get_inputs (BM4 bm4) if (rg_stage == INIT);
-      $display("     BM4 Stage 1 Inputs: Get inputs:", fshow(bm4));
+      fn_display($format("     BM4 Stage 1 Inputs: Get inputs:", fshow(bm4)));
       // Perform parallel CAE operations on input pairs (0,3) and (1,2)
       let lv_get_sort_1 <- cae[0].mav_get_sort(vec(bm4[0], bm4[3]));
       let lv_get_sort_2 <- cae[1].mav_get_sort(vec(bm4[1], bm4[2]));    
@@ -74,7 +74,7 @@ module mk_bm4(Ifc_bm4);
 
    // Stage 2: Final parallel comparisons
    method ActionValue#(BM4) mav_return_output() if (rg_stage == STAGE_1); 
-      $display("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[0][0], pipe[0][1], pipe[0][2], pipe[0][3]);
+      fn_display($format("     BM4 Stage 2 Outputs: %0d, %0d, %0d, %0d", pipe[0][0], pipe[0][1], pipe[0][2], pipe[0][3]));
       // Perform parallel CAE operations on adjacent pairs
       let lv_get_sort_3 <- cae[0].mav_get_sort(vec(pipe[0], pipe[1]));
       let lv_get_sort_4 <- cae[1].mav_get_sort(vec(pipe[2], pipe[3]));      

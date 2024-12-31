@@ -28,14 +28,13 @@ module mk_mdsa_bitonic_testbench(Empty);
     Reg#(MDSA_64) v_mdsa_input_tb <- mkReg(initial_vector);
 
     rule rl_start(rg_mdsa_tb_stage == IDLE);
-        mdsa_bitonic.ma_start();
         mdsa_bitonic.ma_input_mdsa(v_mdsa_input_tb);
         rg_mdsa_tb_stage <= WAIT_FOR_OUTPUT;
     endrule
 
     rule rl_display_final_mdsa_output(rg_mdsa_tb_stage == WAIT_FOR_OUTPUT);
         let lv_mdsa_output <- mdsa_bitonic.mav_return_outputs();
-        $display("Final MDSA output: %h", fshow(lv_mdsa_output));
+        fn_display($format("Final MDSA output: %h", fshow(lv_mdsa_output)));
         $finish;
     endrule
 endmodule

@@ -265,6 +265,52 @@ Note: To get a vcd dump of the simulation, rerun the executable with the +bscvcd
 Eg.  ./mk_mdsa_bitonic_testbench_vsim +bscvcd
 Or, add the +bscvcd flag to the `v_simulate` target in the Makefile
 
+== Comparisons
+
+. Lines of code
+
+In the BSV implementation of the MDSA
+
+== Lines of BSV design code required from the new redesign effort (= 532)
+
+     46 cae.bsv
+     87 bm4.bsv
+    153 bm8.bsv
+    246 mdsa_bitonic.bsv
+
+== Number of lines of Verilog generated from the above BSV (= 1641) 
+
+    66  mk_cae.v
+    171 mk_bm4.v
+    575 mk_bm8.v
+    829 mk_mdsa_bitonic.v 
+
+Note: you can disable the $display statements from being generated in the verilog 
+generation phase by removing the define `-D DISPLAY` in the Makefile
+
+== Wait how does the gate-count compare?
+
+You can run a basic yosys synth at the bsv/build
+
+    make yosys_synth
+
+And the synthesis gate count is:
+    Number of cells:              90410
+
+For the legacy verilog MDSA implementation:
+To run synth of the legacy codebase:
+
+cd `verilog/MDSA_bitonic`
+
+and run:
+    yosys -s synth.ys
+
+And the synthesis gate count is:
+   Number of cells:             121574
+
+There you go! A reduction in gate-count from 121k to 90k. 
+A staggering 25% reduction in number of cells - using a language much abstract, intuitive and efficient. 
+
 == Acknowledgements(TODO)
 
 The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D guided by my UG Professor Dr. Sudeendra Kumar at PES University, Bangalore.
