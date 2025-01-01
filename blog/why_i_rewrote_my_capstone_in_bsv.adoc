@@ -44,7 +44,7 @@ link:https://github.com/govardhnn/Low_Power_Multidimensional_Sorters[GitHub repo
 The `Compare And Exchange` (CAE) block is a fundamental building block of Systolic 
 Array based Parallel Hardware Sorters which sorts two inputs to an ascending order output.
 
-image::CAE.png[pdfwidth=40%,align=center,title="The Compare and Exchange (CAE) Block"]
+image::./img/CAE.png[width=40%,align=center,title="The Compare and Exchange (CAE) Block"]
 
 - Specify the CAE typedef as a Vector of 2 elements of width `WordLength`:
 
@@ -66,7 +66,7 @@ include::../bsv/MDSA_bitonic/cae.bsv[lines=38..43]
 The Bitonic Sorting Unit is a network of 24 such CAE blocks, intricately 
 arranged as depicted below. 
 
-image::BM8.png[pdfwidth=50%,align=center,title="The Bitonic Merge Sorting Network"]
+image::./img/BM8.png[width=50%,align=center,title="The Bitonic Merge Sorting Network"]
 
 This network sorts eight input elements in ascending order at the end of 
 six stages.
@@ -83,7 +83,7 @@ We could modularize a part of this design, the BM4 unit,
 by creating an intermediate two-stage, four-input sorter,
 and specify the two methods for input and output as follows:
 
-image::BM4.png[pdfwidth=10%,align=center,title="The BM4 sorter Network"]
+image::./img/BM4.png[width=10%,align=center,title="The BM4 sorter Network"]
 
 - Declare a typedef for `BM4` as a vector of 4 inputs of width `WordLength`:
 
@@ -151,11 +151,11 @@ include::../bsv/MDSA_bitonic/bm8.bsv[lines=64..71]
 The MDSA algorithm efficiently uses Parallel Hardware Sorters (PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units 
 to sort 64 elements in 6 stages by only alternating between row and column sorting, and rerouting the order of outputs (ascending/descending).
 
-image::MDSA.png[pdfwidth=50%,align=center,title="The block diagram of the MDSA Architecture"]
+image::./img/MDSA.png[width=50%,align=center,title="The block diagram of the MDSA Architecture"]
 
 ==== MDSA Agorithm FSM
 
-image::MDSA_FSM.png[pdfwidth=50%,align=center,title="The FSM that implements the MDS-Algorithm"]
+image::./img/MDSA_FSM.png[width=50%,align=center,title="The FSM that implements the MDS-Algorithm"]
 
 We specify the `MDSA_64` type which is a multidimensional 8x8 vector 
 
@@ -166,7 +166,7 @@ include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=17..18]
 To create a 64 record register buffer specified as:
 
 [source,BSV]
-include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=34]
+include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=35]
 
 And use this helper function to send inputs to the MDSA sorter network:
 
@@ -177,7 +177,7 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=15..27]
 
 - Sending the inputs to the Eight BM8 sorters:
 
-image::MDSA_FSM_P1.png[pdfwidth=50%,align=center,title="The First Phase of the MDSA Algorithm"]
+image::./img/MDSA_FSM_P1.png[width=50%,align=center,title="The First Phase of the MDSA Algorithm"]
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=40..46]
@@ -193,13 +193,13 @@ TIP: We can use the inbuilt Vector to Vector `transpose` function
 in BSV to alternate between the row and column sorting between the phases of the MDSA.
 
 [source,BSV]
-include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=62]
+include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=63]
 
 ==== Stage 2: Row Sorting 
 
 - Sending the inputs to the Eight BM8 sorters:
 
-image::MDSA_FSM_P2.png[pdfwidth=50%,align=center,title="The Second Phase of the MDSA Algorithm"]
+image::./img/MDSA_FSM_P2.png[width=50%,align=center,title="The Second Phase of the MDSA Algorithm"]
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=71..77]
