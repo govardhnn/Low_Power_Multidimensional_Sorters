@@ -198,6 +198,19 @@ include::../bsv/MDSA_bitonic/bm8.bsv[lines=64..71]
 The MDSA algorithm efficiently uses Parallel Hardware Sorters (PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units 
 to sort 64 elements in 6 stages by only alternating between row and column sorting, and rerouting the order of outputs (ascending/descending).
 
+Also, now that we are redesigning the MDSA, I desire to implement an optimization where I handle the ascending and descending order of the MDSA inputs at the 
+input of the Parallel Sorting Networks and limit myself to use unidirectional CAE blocks.
+
+
+In the legacy verilog implementation, we had CAE blocks that could support both the directions, and kept the top level simple such that we only transpose between row and column sorting between phases.
+
+IMPORTANT: The reason why I choose to keep the CAEs simple is because selecting between the ascending
+and descending increases the number of multiplexors in each CAE block, 
+and in the MDSA sorter,
+there are 8 (Bitonic Networks) * 24 (CAE blocks in each Network) = 192 CAE blocks which is indeed substantial! 
+Let us later look at the gate-count difference to determine how much this optimization has impacted 
+our implementation's area :)
+
 image::./img/MDSA.png[width=50%,title="The block diagram of the MDSA Architecture"]
 
 ==== MDSA Agorithm FSM
@@ -291,21 +304,9 @@ Verilog simulation finished
 
 . Modify the `makefile.inc` to select the module to simulate
 
-For CAE:
+For CAE/BM4/BM8/MDSA:
 
-    TB_BSV:= cae_testbench
-
-For BM4:
-
-    TB_BSV:= bm4_testbench
-
-For BM8:
-
-    TB_BSV:= bm8_testbench
-
-For MDSA:
-
-    TB_BSV:= mdsa_bitonic_testbench
+    TB_BSV:= cae_testbench / bm4_testbench / bm8_testbench / mdsa_bitonic_testbench
 
 . To run the simulation with the Bluespec Compiler (bsc):
     
@@ -335,17 +336,17 @@ Which generates the following verilog modules
     575 mk_bm8.v
     829 mk_mdsa_bitonic.v 
 
-NOTE: You can disable the $display statements from being generated in the verilog generation phase by removing the define `-D DISPLAY` in the Makefile
+TIP: You can disable the $display statements from being generated in the verilog generation phase by removing the define `-D DISPLAY` in the Makefile
 
-=== Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations 
+=== Finally, the Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations 
 
 NOTE: We shall be using the open-source synthesis tool link:https://github.com/YosysHQ/yosys[Yosys], and the scripts can be found in `bsv/build/synth.ys` and `verilog/MDSA_bitonic/synth.ys`
 
-=== Legacy Verilog MDSA synthesis
+==== Legacy Verilog MDSA synthesis
 
 To run synth of the legacy Verilog MDSA codebase with top module `MDSA_top`:
 
-    cd `verilog/MDSA_bitonic`
+    cd verilog/MDSA_bitonic
 
 and run:
 
@@ -362,7 +363,7 @@ And we shall find that the synthesis gate count is:
     Number of processes:              0
     Number of cells:             121574
 
-=== BSV MDSA synthesis
+==== BSV MDSA synthesis
 
 NOTE: We shall be running synthesis on the
 verilog generated from the BSV explained in this blog. 
@@ -383,28 +384,34 @@ And the synthesis gate count is:
     Number of cells:              90410
 
 
-==== _There you go! A reduction in gate-count from *121k* to *90k*._ 
+_There you go! A reduction in gate-count from *121k* to *90k*._ A staggering *25%* reduction in thet total number of cells.
 
-A staggering *25%* reduction in number of cells - using a language much abstract, intuitive and efficient. 
+=== Scope of future contribution to this project
 
-=== Scope of future contribution to this project(TODO)
+- Implementing the Hybrid and Odd Even Sorter designs in BSV - which is pretty fun and replicable looking at the current BSV implementation of the Bitonic Sorter
 
+- Deep-dive into the logic that changed between the legacy Verilog MDSA and the 
+new BSV redesign of the MSDA
+
+- Implement Index Sorting for the Sorting Networks in BSV similiar to the legacy Verilog implementation.
+
+- Attach this sorting unit to a CPU and implement the MDSA as a co-processor. Find sorter efficiency for relevant workloads. 
 
 === Acknowledgements(TODO)
 
-The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D guided by my UG Professor Dr. Sudeendra Kumar at PES University, Bangalore.
+<reviewers, thanks>
 
-The BSV languare compiler [2] and libraries reference guide from Bluespec(inc)
+The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D guided by my UG Professor Dr. Sudeendra Kumar at PES University, Bangalore.
 
 Initial Work on MDSA [5] and PHSA sorter variants[6]
 
-<reviewers, thanks>
+The BSV languare compiler [2] and libraries reference guide from Bluespec(inc)
 
 === References
 
-. link:https://ieeexplore.ieee.org/document/10234758[Low Power Multidimensional Sorters using Clock Gating and Index Sorting, 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)]
+. link:https://ieeexplore.ieee.org/document/10234758["Low Power Multidimensional Sorters using Clock Gating and Index Sorting." 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)]
 . link:https://github.com/B-Lang-org/bsc[The Bluespec Compiler(bsc)]
-. link:https://github.com/B-Lang-org/bsc?tab=readme-ov-file#documentation[Libraries Reference Guide]
-.  K.E. Batcher, “Sorting Networks and Their Applications,” Proc. AFIPS Proc. Spring Joint Computer Conf., pp. 307-314, 1968.
-. A. Norollah, et al, "RTHS: A Low-Cost High-Performance Real-Time Hardware Sorter, Using a Multidimensional Sorting Algorithm," in IEEE Transactions on Very Large-Scale Integration (VLSI) Systems, vol. 27, no. 7, pp. 1601-1613, July 2019.
-. V. S. Harshini et al, "Design of Hybrid Sorting Unit," 2019 International Conference on Smart Structures and Systems (ICSSS), Chennai, India, 2019, pp. 1-6
+. link:https://github.com/B-Lang-org/bsc?tab=readme-ov-file#documentation["Bluespec Libraries Reference Guide"]
+.  link:https://www.cs.kent.edu/~batcher/sort.pdf["Sorting Networks and Their Applications,” Proc. AFIPS Proc. Spring Joint Computer Conf., 1968.]
+. link:https://sdprosolutions.com/files/base-papers/2019/vlsi/vlsi-18.pdf["RTHS: A Low-Cost High-Performance Real-Time Hardware Sorter, Using a Multidimensional Sorting Algorithm" in IEEE Transactions on Very Large-Scale Integration (VLSI) Systems, July 2019.]
+. link:https://dl.acm.org/doi/10.1007/978-3-031-58502-9_7["Design of Hybrid Sorting Unit," 2019 International Conference on Smart Structures and Systems (ICSSS), Chennai, India, 2019]
