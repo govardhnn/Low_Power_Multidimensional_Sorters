@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<title>Why I rewrote my capstone project in Bluespec SystemVerilog</title>
+<title>Why I rewrote my Capstone Project in Bluespec SystemVerilog</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,7 +436,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Why I rewrote my capstone project in Bluespec SystemVerilog</h1>
+<h1>Why I rewrote my Capstone Project in Bluespec SystemVerilog</h1>
 </div>
 <div id="content">
 <div id="preamble">
@@ -801,6 +801,30 @@ for the third stage:</p>
 <p>The MDSA algorithm efficiently uses Parallel Hardware Sorters (PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units
 to sort 64 elements in 6 stages by only alternating between row and column sorting, and rerouting the order of outputs (ascending/descending).</p>
 </div>
+<div class="paragraph">
+<p>Also, now that we are redesigning the MDSA, I desire to implement an optimization where I handle the ascending and descending order of the MDSA inputs at the
+input of the Parallel Sorting Networks and limit myself to use unidirectional CAE blocks.</p>
+</div>
+<div class="paragraph">
+<p>In the legacy verilog implementation, we had CAE blocks that could support both the directions, and kept the top level simple such that we only transpose between row and column sorting between phases.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+The reason why I choose to keep the CAEs simple is because selecting between the ascending
+and descending increases the number of multiplexors in each CAE block,
+and in the MDSA sorter,
+there are 8 (Bitonic Networks) * 24 (CAE blocks in each Network) = 192 CAE blocks which is indeed substantial!
+Let us later look at the gate-count difference to determine how much this optimization has impacted
+our implementation&#8217;s area :)
+</td>
+</tr>
+</table>
+</div>
 <div class="imageblock">
 <div class="content">
 <img src="./img/MDSA.png" alt="MDSA" width="50%">
@@ -1030,35 +1054,11 @@ Verilog simulation finished</code></pre>
 </ol>
 </div>
 <div class="paragraph">
-<p>For CAE:</p>
+<p>For CAE/BM4/BM8/MDSA:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>TB_BSV:= cae_testbench</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For BM4:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>TB_BSV:= bm4_testbench</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For BM8:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>TB_BSV:= bm8_testbench</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For MDSA:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>TB_BSV:= mdsa_bitonic_testbench</pre>
+<pre>TB_BSV:= cae_testbench / bm4_testbench / bm8_testbench / mdsa_bitonic_testbench</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -1122,11 +1122,11 @@ Or, add the +bscvcd flag to the <code>v_simulate</code> target in the Makefile
 829 mk_mdsa_bitonic.v</pre>
 </div>
 </div>
-<div class="admonitionblock note">
+<div class="admonitionblock tip">
 <table>
 <tr>
 <td class="icon">
-<div class="title">Note</div>
+<div class="title">Tip</div>
 </td>
 <td class="content">
 You can disable the $display statements from being generated in the verilog generation phase by removing the define <code>-D DISPLAY</code> in the Makefile
@@ -1136,7 +1136,7 @@ You can disable the $display statements from being generated in the verilog gene
 </div>
 </div>
 <div class="sect2">
-<h3 id="_gate_count_comparison_of_the_legacy_verilog_mdsa_vs_the_new_bsv_mdsa_implementations">Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations</h3>
+<h3 id="_finally_the_gate_count_comparison_of_the_legacy_verilog_mdsa_vs_the_new_bsv_mdsa_implementations">Finally, the Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1149,15 +1149,14 @@ We shall be using the open-source synthesis tool <a href="https://github.com/Yos
 </tr>
 </table>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_legacy_verilog_mdsa_synthesis">Legacy Verilog MDSA synthesis</h3>
+<div class="sect3">
+<h4 id="_legacy_verilog_mdsa_synthesis">Legacy Verilog MDSA synthesis</h4>
 <div class="paragraph">
 <p>To run synth of the legacy Verilog MDSA codebase with top module <code>MDSA_top</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>cd `verilog/MDSA_bitonic`</pre>
+<pre>cd verilog/MDSA_bitonic</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1184,8 +1183,8 @@ Number of cells:             121574</pre>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_bsv_mdsa_synthesis">BSV MDSA synthesis</h3>
+<div class="sect3">
+<h4 id="_bsv_mdsa_synthesis">BSV MDSA synthesis</h4>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1222,30 +1221,44 @@ Number of processes:              0
 Number of cells:              90410</pre>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_there_you_go_a_reduction_in_gate_count_from_121k_to_90k"><em>There you go! A reduction in gate-count from <strong>121k</strong> to <strong>90k</strong>.</em></h4>
 <div class="paragraph">
-<p>A staggering <strong>25%</strong> reduction in number of cells - using a language much abstract, intuitive and efficient.</p>
+<p><em>There you go! A reduction in gate-count from <strong>121k</strong> to <strong>90k</strong>.</em> A staggering <strong>25%</strong> reduction in thet total number of cells.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_scope_of_future_contribution_to_this_projecttodo">Scope of future contribution to this project(TODO)</h3>
-
+<h3 id="_scope_of_future_contribution_to_this_project">Scope of future contribution to this project</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Implementing the Hybrid and Odd Even Sorter designs in BSV - which is pretty fun and replicable looking at the current BSV implementation of the Bitonic Sorter</p>
+</li>
+<li>
+<p>Deep-dive into the logic that changed between the legacy Verilog MDSA and the
+new BSV redesign of the MSDA</p>
+</li>
+<li>
+<p>Implement Index Sorting for the Sorting Networks in BSV similiar to the legacy Verilog implementation.</p>
+</li>
+<li>
+<p>Attach this sorting unit to a CPU and implement the MDSA as a co-processor. Find sorter efficiency for relevant workloads.</p>
+</li>
+</ul>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_acknowledgementstodo">Acknowledgements(TODO)</h3>
 <div class="paragraph">
-<p>The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D guided by my UG Professor Dr. Sudeendra Kumar at PES University, Bangalore.</p>
+<p>&lt;reviewers, thanks&gt;</p>
 </div>
 <div class="paragraph">
-<p>The BSV languare compiler [2] and libraries reference guide from Bluespec(inc)</p>
+<p>The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D guided by my UG Professor Dr. Sudeendra Kumar at PES University, Bangalore.</p>
 </div>
 <div class="paragraph">
 <p>Initial Work on MDSA [5] and PHSA sorter variants[6]</p>
 </div>
 <div class="paragraph">
-<p>&lt;reviewers, thanks&gt;</p>
+<p>The BSV languare compiler [2] and libraries reference guide from Bluespec(inc)</p>
 </div>
 </div>
 <div class="sect2">
@@ -1253,22 +1266,22 @@ Number of cells:              90410</pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><a href="https://ieeexplore.ieee.org/document/10234758">Low Power Multidimensional Sorters using Clock Gating and Index Sorting, 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)</a></p>
+<p><a href="https://ieeexplore.ieee.org/document/10234758">"Low Power Multidimensional Sorters using Clock Gating and Index Sorting." 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)</a></p>
 </li>
 <li>
 <p><a href="https://github.com/B-Lang-org/bsc">The Bluespec Compiler(bsc)</a></p>
 </li>
 <li>
-<p><a href="https://github.com/B-Lang-org/bsc?tab=readme-ov-file#documentation">Libraries Reference Guide</a></p>
+<p><a href="https://github.com/B-Lang-org/bsc?tab=readme-ov-file#documentation">"Bluespec Libraries Reference Guide"</a></p>
 </li>
 <li>
-<p>K.E. Batcher, “Sorting Networks and Their Applications,” Proc. AFIPS Proc. Spring Joint Computer Conf., pp. 307-314, 1968.</p>
+<p><a href="https://www.cs.kent.edu/~batcher/sort.pdf">"Sorting Networks and Their Applications,” Proc. AFIPS Proc. Spring Joint Computer Conf., 1968.</a></p>
 </li>
 <li>
-<p>A. Norollah, et al, "RTHS: A Low-Cost High-Performance Real-Time Hardware Sorter, Using a Multidimensional Sorting Algorithm," in IEEE Transactions on Very Large-Scale Integration (VLSI) Systems, vol. 27, no. 7, pp. 1601-1613, July 2019.</p>
+<p><a href="https://sdprosolutions.com/files/base-papers/2019/vlsi/vlsi-18.pdf">"RTHS: A Low-Cost High-Performance Real-Time Hardware Sorter, Using a Multidimensional Sorting Algorithm" in IEEE Transactions on Very Large-Scale Integration (VLSI) Systems, July 2019.</a></p>
 </li>
 <li>
-<p>V. S. Harshini et al, "Design of Hybrid Sorting Unit," 2019 International Conference on Smart Structures and Systems (ICSSS), Chennai, India, 2019, pp. 1-6</p>
+<p><a href="https://dl.acm.org/doi/10.1007/978-3-031-58502-9_7">"Design of Hybrid Sorting Unit," 2019 International Conference on Smart Structures and Systems (ICSSS), Chennai, India, 2019</a></p>
 </li>
 </ol>
 </div>
@@ -1278,7 +1291,7 @@ Number of cells:              90410</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-01-01 18:50:16 +0530
+Last updated 2025-01-02 01:28:28 +0530
 </div>
 </div>
 </body>

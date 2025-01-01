@@ -1,4 +1,4 @@
-= Why I rewrote my capstone project in Bluespec SystemVerilog
+= Why I rewrote my Capstone Project in Bluespec SystemVerilog
 
 mailto:sai.govardhan@incoresemi.com[Govardhan] | 
  4th January, 2025
