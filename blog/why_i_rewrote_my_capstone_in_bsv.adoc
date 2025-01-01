@@ -49,12 +49,13 @@ image::CAE.png[pdfwidth=40%,align=center,title="The Compare and Exchange (CAE) B
 - Specify the CAE typedef as a Vector of 2 elements of width `WordLength`:
 
 [source,BSV]
-include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines==9..9]
+include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=9..9]
 
 - Declare the method ActionValue `mav_get_sort`:
 
-The CAE block checks if `cae_in[0]` is greater than `cae_in[1]` and uses the 
-inbuilt Vector to Vector `reverse` function to swap the values.  
+The CAE block checks if `cae_in[0]` is greater than `cae_in[1]` to swap them.
+
+TIP: We can use the inbuilt Vector to Vector `reverse` function to swap the values.  
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/cae.bsv[lines=38..43]
@@ -65,13 +66,13 @@ include::../bsv/MDSA_bitonic/cae.bsv[lines=38..43]
 The Bitonic Sorting Unit is a network of 24 such CAE blocks, intricately 
 arranged as depicted below. 
 
+image::BM8.png[pdfwidth=50%,align=center,title="The Bitonic Merge Sorting Network"]
+
 This network sorts eight input elements in ascending order at the end of 
 six stages.
 
-To read more about the Bitonic Sorting Network, refer to the seminal paper by
-Batcher[4].
-
-image::BM8.png[pdfwidth=50%,align=center,title="The Bitonic Merge Sorting Network"]
+To read more about the Bitonic Sorting Network, refer to the seminal paper 
+on systolic array sorting network design by Batcher[4].
 
 If you look closely, we can take parts of
 the above BM8 architecture and modularize them. 
@@ -95,8 +96,10 @@ include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=11]
 include::../bsv/MDSA_bitonic/bm4.bsv[lines=59]
 
 - First stage of sorting with the inputs, by routing the inputs at indices
-0 and 3 to CAE-0, and 1 and 2 to CAE-1 block. We use the inbuilt vector function
-vec() to combine multiple elements into a vector:
+0 and 3 to CAE-0, and 1 and 2 to CAE-1 block. 
+
+TIP: We use the inbuilt vector function
+`vec` to combine multiple elements into a vector:
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/bm4.bsv[lines=68..71]
@@ -184,7 +187,9 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=40..46]
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=52..59]
 
-- Transposing the output: We can use the inbuilt transpose function
+- Transposing the output: 
+
+TIP: We can use the inbuilt Vector to Vector `transpose` function
 in BSV to alternate between the row and column sorting between the phases of the MDSA.
 
 [source,BSV]
@@ -204,7 +209,7 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=71..77]
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=84..95]
 
-Transposing the output
+- Transposing the output
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=98]
@@ -261,36 +266,61 @@ For MDSA:
 
 The generated verilog can be found in the `verilog_dir` directory
 
-Note: To get a vcd dump of the simulation, rerun the executable with the +bscvcd argument.
+NOTE: To get a vcd dump of the simulation, rerun the executable with the +bscvcd argument.
 Eg.  ./mk_mdsa_bitonic_testbench_vsim +bscvcd
 Or, add the +bscvcd flag to the `v_simulate` target in the Makefile
 
-== Comparisons
+== Observations
 
-. Lines of code
+. Number of lines of code
 
 In the BSV implementation of the MDSA
-
-== Lines of BSV design code required from the new redesign effort (= 532)
 
      46 cae.bsv
      87 bm4.bsv
     153 bm8.bsv
     246 mdsa_bitonic.bsv
 
-== Number of lines of Verilog generated from the above BSV (= 1641) 
+Which generates the following verilog modules
 
     66  mk_cae.v
     171 mk_bm4.v
     575 mk_bm8.v
     829 mk_mdsa_bitonic.v 
 
-Note: you can disable the $display statements from being generated in the verilog 
-generation phase by removing the define `-D DISPLAY` in the Makefile
+NOTE: You can disable the $display statements from being generated in the verilog generation phase by removing the define `-D DISPLAY` in the Makefile
 
-== Wait how does the gate-count compare BSV vs Verilog implementation?
+== Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations 
 
-You can run a basic yosys synth at the bsv/build
+NOTE: We shall be using the open-source synthesis tool link:https://github.com/YosysHQ/yosys[Yosys], and the scripts can be found in `bsv/build/synth.ys` and `verilog/MDSA_bitonic/synth.ys`
+
+=== Legacy Verilog MDSA synthesis
+
+To run synth of the legacy Verilog MDSA codebase with top module `MDSA_top`:
+
+    cd `verilog/MDSA_bitonic`
+
+and run:
+
+    yosys -s synth.ys
+
+And we shall find that the synthesis gate count is:
+
+    Number of wires:             143051
+    Number of wire bits:         247433
+    Number of public wires:        1674
+    Number of public wire bits:   56173
+    Number of memories:               0
+    Number of memory bits:            0
+    Number of processes:              0
+    Number of cells:             121574
+
+=== BSV MDSA synthesis
+
+NOTE: We shall be running synthesis on the
+verilog generated from the BSV explained in this blog. 
+
+You can run a yosys synth at the bsv/build with top module `mk_mdsa_bitonic`
 
     make yosys_synth
 
@@ -305,27 +335,11 @@ And the synthesis gate count is:
     Number of processes:              0
     Number of cells:              90410
 
-For the legacy verilog MDSA implementation:
-To run synth of the legacy codebase:
 
-cd `verilog/MDSA_bitonic`
+=== _There you go! A reduction in gate-count from *121k* to *90k*._ A staggering *25%* reduction in number of cells - using a language much abstract, intuitive and efficient. 
 
-and run:
-    yosys -s synth.ys
+== Scope of contribution to this project(TODO)
 
-And the synthesis gate count is:
-
-    Number of wires:             143051
-    Number of wire bits:         247433
-    Number of public wires:        1674
-    Number of public wire bits:   56173
-    Number of memories:               0
-    Number of memory bits:            0
-    Number of processes:              0
-    Number of cells:             121574
-
-There you go! A reduction in gate-count from 121k to 90k. 
-A staggering *25.65%* reduction in number of cells - using a language much abstract, intuitive and efficient. 
 
 == Acknowledgements(TODO)
 
@@ -340,7 +354,7 @@ Initial Work on MDSA [5] and PHSA sorter variants[6]
 == References
 
 . link:https://ieeexplore.ieee.org/document/10234758[Low Power Multidimensional Sorters using Clock Gating and Index Sorting, 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)]
-. link:https://github.com/B-Lang-org/bsc[The Bluespec Compiler(bsc)]] 
+. link:https://github.com/B-Lang-org/bsc[The Bluespec Compiler(bsc)]
 . link:https://github.com/B-Lang-org/bsc?tab=readme-ov-file#documentation[Libraries Reference Guide]
 .  K.E. Batcher, “Sorting Networks and Their Applications,” Proc. AFIPS Proc. Spring Joint Computer Conf., pp. 307-314, 1968.
 . A. Norollah, et al, "RTHS: A Low-Cost High-Performance Real-Time Hardware Sorter, Using a Multidimensional Sorting Algorithm," in IEEE Transactions on Very Large-Scale Integration (VLSI) Systems, vol. 27, no. 7, pp. 1601-1613, July 2019.
