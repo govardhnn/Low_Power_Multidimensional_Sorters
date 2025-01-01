@@ -1,7 +1,20 @@
 = Why I rewrote my capstone project in Bluespec SystemVerilog
 
 Author: Sai Govardhan M C +
-Email: sai.govardhan@incoresemi.com
+Email: sai.govardhan@incoresemi.com +
+Date: (Tentative)4th January, 2025
+
+[.lead]
+ifdef::backend-html5[]
+++++
+<style>
+h1, h2, h3, h4, h5, h6, .title, div.title, .imageblock .title, .literalblock .title {
+    color: blue;
+    font-weight: bold;
+}
+</style>
+++++
+endif::[]
 
 == Introduction
 
@@ -44,7 +57,7 @@ link:https://github.com/govardhnn/Low_Power_Multidimensional_Sorters[GitHub repo
 The `Compare And Exchange` (CAE) block is a fundamental building block of Systolic 
 Array based Parallel Hardware Sorters which sorts two inputs to an ascending order output.
 
-image::./img/CAE.png[width=40%,align=center,title="The Compare and Exchange (CAE) Block"]
+image::./img/CAE.png[width=40%,title="The Compare and Exchange (CAE) Block"]
 
 - Specify the CAE typedef as a Vector of 2 elements of width `WordLength`:
 
@@ -66,7 +79,7 @@ include::../bsv/MDSA_bitonic/cae.bsv[lines=38..43]
 The Bitonic Sorting Unit is a network of 24 such CAE blocks, intricately 
 arranged as depicted below. 
 
-image::./img/BM8.png[width=50%,align=center,title="The Bitonic Merge Sorting Network"]
+image::./img/BM8.png[width=50%,title="The Bitonic Merge Sorting Network"]
 
 This network sorts eight input elements in ascending order at the end of 
 six stages.
@@ -83,7 +96,7 @@ We could modularize a part of this design, the BM4 unit,
 by creating an intermediate two-stage, four-input sorter,
 and specify the two methods for input and output as follows:
 
-image::./img/BM4.png[width=10%,align=center,title="The BM4 sorter Network"]
+image::./img/BM4.png[width=10%,title="The BM4 sorter Network"]
 
 - Declare a typedef for `BM4` as a vector of 4 inputs of width `WordLength`:
 
@@ -151,11 +164,11 @@ include::../bsv/MDSA_bitonic/bm8.bsv[lines=64..71]
 The MDSA algorithm efficiently uses Parallel Hardware Sorters (PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units 
 to sort 64 elements in 6 stages by only alternating between row and column sorting, and rerouting the order of outputs (ascending/descending).
 
-image::./img/MDSA.png[width=50%,align=center,title="The block diagram of the MDSA Architecture"]
+image::./img/MDSA.png[width=50%,title="The block diagram of the MDSA Architecture"]
 
 ==== MDSA Agorithm FSM
 
-image::./img/MDSA_FSM.png[width=50%,align=center,title="The FSM that implements the MDS-Algorithm"]
+image::./img/MDSA_FSM.png[width=50%,title="The FSM that implements the MDS-Algorithm"]
 
 We specify the `MDSA_64` type which is a multidimensional 8x8 vector 
 
@@ -177,7 +190,7 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=15..27]
 
 - Sending the inputs to the Eight BM8 sorters:
 
-image::./img/MDSA_FSM_P1.png[width=50%,align=center,title="The First Phase of the MDSA Algorithm"]
+image::./img/MDSA_FSM_P1.png[width=50%,title="The First Phase of the MDSA Algorithm"]
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=40..46]
@@ -199,7 +212,7 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=63]
 
 - Sending the inputs to the Eight BM8 sorters:
 
-image::./img/MDSA_FSM_P2.png[width=50%,align=center,title="The Second Phase of the MDSA Algorithm"]
+image::./img/MDSA_FSM_P2.png[width=50%,title="The Second Phase of the MDSA Algorithm"]
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=71..77]
@@ -232,7 +245,7 @@ Verilog simulation finished
 
 
 
-== Steps to run simulations of the CAE, BM4, BM8 and MDSA_Bitonic in the GitHub Repository
+=== Steps to run simulations of the CAE, BM4, BM8 and MDSA_Bitonic in the GitHub Repository
 
 . Clone the repository:
 
@@ -270,7 +283,7 @@ NOTE: To get a vcd dump of the simulation, rerun the executable with the +bscvcd
 Eg.  ./mk_mdsa_bitonic_testbench_vsim +bscvcd
 Or, add the +bscvcd flag to the `v_simulate` target in the Makefile
 
-== Observations
+=== Observations
 
 . Number of lines of code
 
@@ -290,7 +303,7 @@ Which generates the following verilog modules
 
 NOTE: You can disable the $display statements from being generated in the verilog generation phase by removing the define `-D DISPLAY` in the Makefile
 
-== Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations 
+=== Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations 
 
 NOTE: We shall be using the open-source synthesis tool link:https://github.com/YosysHQ/yosys[Yosys], and the scripts can be found in `bsv/build/synth.ys` and `verilog/MDSA_bitonic/synth.ys`
 
@@ -336,12 +349,14 @@ And the synthesis gate count is:
     Number of cells:              90410
 
 
-=== _There you go! A reduction in gate-count from *121k* to *90k*._ A staggering *25%* reduction in number of cells - using a language much abstract, intuitive and efficient. 
+==== _There you go! A reduction in gate-count from *121k* to *90k*._ 
 
-== Scope of contribution to this project(TODO)
+A staggering *25%* reduction in number of cells - using a language much abstract, intuitive and efficient. 
+
+=== Scope of future contribution to this project(TODO)
 
 
-== Acknowledgements(TODO)
+=== Acknowledgements(TODO)
 
 The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D guided by my UG Professor Dr. Sudeendra Kumar at PES University, Bangalore.
 
@@ -351,7 +366,7 @@ Initial Work on MDSA [5] and PHSA sorter variants[6]
 
 <reviewers, thanks>
 
-== References
+=== References
 
 . link:https://ieeexplore.ieee.org/document/10234758[Low Power Multidimensional Sorters using Clock Gating and Index Sorting, 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)]
 . link:https://github.com/B-Lang-org/bsc[The Bluespec Compiler(bsc)]
@@ -359,4 +374,3 @@ Initial Work on MDSA [5] and PHSA sorter variants[6]
 .  K.E. Batcher, “Sorting Networks and Their Applications,” Proc. AFIPS Proc. Spring Joint Computer Conf., pp. 307-314, 1968.
 . A. Norollah, et al, "RTHS: A Low-Cost High-Performance Real-Time Hardware Sorter, Using a Multidimensional Sorting Algorithm," in IEEE Transactions on Very Large-Scale Integration (VLSI) Systems, vol. 27, no. 7, pp. 1601-1613, July 2019.
 . V. S. Harshini et al, "Design of Hybrid Sorting Unit," 2019 International Conference on Smart Structures and Systems (ICSSS), Chennai, India, 2019, pp. 1-6
-
