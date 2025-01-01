@@ -442,14 +442,48 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Author: Sai Govardhan M C<br>
-Email: <a href="mailto:sai.govardhan@incoresemi.com">sai.govardhan@incoresemi.com</a><br>
-Date: (Tentative)4th January, 2025</p>
+<p><a href="mailto:sai.govardhan@incoresemi.com">Govardhan</a> |
+ 4th January, 2025</p>
 </div>
 <style>
-h1, h2, h3, h4, h5, h6, .title, div.title, .imageblock .title, .literalblock .title {
+h1, h2, h3, h4, h5, h6, .title, div.title {
     color: blue;
     font-weight: bold;
+}
+
+ .imageblock .title, .literalblock .title {
+    color: blue;
+ }
+/* Control overall font size */
+body {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Adjust heading sizes */
+title { font-size: 2em; }
+h1 { font-size: 2em; }
+h2 { font-size: 1.5em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.1em; }
+h5, h6 { font-size: 1em; }
+
+/* Adjust code block size */
+pre, code {
+    font-size: 13px;
+}
+
+/* Adjust paragraph and list text */
+p, ul, ol, dl {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Make figure captions smaller */
+div.title, .imageblock .title, .literalblock .title {
+    font-size: 1em;  /* Same as body text */
+    margin-top: 0.5em;
+    margin-bottom: 1em;
 }
 </style>
 </div>
@@ -1244,7 +1278,7 @@ Number of cells:              90410</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-01-01 18:19:34 +0530
+Last updated 2025-01-01 18:50:16 +0530
 </div>
 </div>
 </body>
