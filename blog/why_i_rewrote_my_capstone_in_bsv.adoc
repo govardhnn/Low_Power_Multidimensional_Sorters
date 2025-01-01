@@ -247,7 +247,7 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=40..46]
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=52..59]
 
-- Transposing the output: 
+- Transposing the output from Column to Row sorting: 
 
 TIP: We can use the inbuilt Vector to Vector `transpose` function
 in BSV to alternate between the row and column sorting between the phases of the MDSA.
@@ -269,10 +269,10 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=71..77]
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=84..95]
 
-- Transposing the output
+- Transposing the output from Row to Column sorting:
 
 [source,BSV]
-include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=98]
+include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=99]
 
 \... and so on for the remaining stages 3 to 6 as per the MDSA Algorithm FSM.
 
