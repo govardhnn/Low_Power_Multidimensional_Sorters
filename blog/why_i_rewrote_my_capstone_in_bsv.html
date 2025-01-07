@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<title>Why I rewrote my Capstone Project in Bluespec SystemVerilog</title>
+<title>A Compelling Case for using Bluespec SystemVerilog in Academia</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,14 +436,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Why I rewrote my Capstone Project in Bluespec SystemVerilog</h1>
+<h1>A Compelling Case for using Bluespec SystemVerilog in Academia</h1>
 </div>
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="mailto:sai.govardhan@incoresemi.com">Govardhan</a> |
- 4th January, 2025</p>
+ &lt;Tentative&gt; January, 2025</p>
 </div>
 <style>
 h1, h2, h3, h4, h5, h6, .title, div.title {
@@ -492,34 +492,26 @@ div.title, .imageblock .title, .literalblock .title {
 <h2 id="_introduction">Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This document outlines the motivation for using Bluespec SystemVerilog, which
-provides high levels of abstraction to rapidly design hardware microarchitecture.</p>
-</div>
-<div class="paragraph">
-<p>Like most undergraduate students, I started out designing initial digital
-logic in Verilog, with reference to coding guidelines from professors,
-coursework, and the <a href="http://www.sunburst-design.com/papers/">sunburst papers</a>.
-Back then, specifying designs dealing with parallelism and concurrency was always a
-challenge due to lower levels of abstraction and regular rework to fix
-synthesis-simulation mismatches.</p>
-</div>
-<div class="paragraph">
 <p>At <a href="https://incoresemi.com/">InCore</a>, the use of BSV is one of the
 superpowers that enables small teams like ours to specify complex
 hardware intuitively, correctly, and efficiently.</p>
 </div>
 <div class="paragraph">
-<p>A year ago, as a novice BSV designer, I decided it would be interesting
-and meaningful to contrast the efforts that my team and I spent during our
-capstone project by re-implementing the Multi-Dimensional Sorting Algorithm (MDSA)
-in a High-Level HDL - BSV.
-As an outcome, this blog collates these insights to establish a strong case for teaching
-and using BSV at universities.</p>
+<p>Like most undergraduate students, I started out designing initial digital
+logic in Verilog, with reference to coding guidelines from professors,
+coursework, and the <a href="http://www.sunburst-design.com/papers/">sunburst papers</a>.
+Back then, specifying designs dealing with parallelism and concurrency was
+always a challenging and discouraging due to lower levels of abstraction.</p>
 </div>
 <div class="paragraph">
-<p>In this post, I shall be diving into my BSV implementation by explaining
-essential parts of the microarchitecture, the ease of specifying them in BSV,
-and corresponding snippets from the codebase.</p>
+<p>A year ago, as a novice BSV designer, I decided it would be meaningful
+to re-implement the Multi-Dimensional Sorting Algorithm (MDSA) implementation
+from my capstone project in a High-Level Hardware Description Language - BSV.</p>
+</div>
+<div class="paragraph">
+<p>Before addressing the timing and area concerns of this design,
+the focus of this work is to appreciate if the BSV counterpart
+is cycle-level performant, intuitive to understand, and easy to implement.</p>
 </div>
 <div class="paragraph">
 <p>More of our work on the taxonomy of sorters, low power methodologies,
@@ -531,6 +523,14 @@ can be referred to in our published paper
 <p>My complete MDSA Bitonic Implementation in BSV, along with our legacy
 Verilog implementation, can be found in my
 <a href="https://github.com/govardhnn/Low_Power_Multidimensional_Sorters">GitHub repository</a>.</p>
+</div>
+<div class="paragraph">
+<p>TLDR; In this blog, we shall:
+. Explore the MDSA Algorithm,
+. Use inbuilt BSV Library functions to design an increasing complexity of sorters,
+. Sort 64 elements passed as a 8x8 array in six phases,
+. Discover a 25% reduction in gate-count (121k to 90k) by comparing the legacy
+Verilog implementation vs the BSV implementation using a simple optimization.</p>
 </div>
 </div>
 </div>
@@ -550,7 +550,7 @@ Array based Parallel Hardware Sorters which sorts two inputs to an ascending ord
 <div class="ulist">
 <ul>
 <li>
-<p>Specify the CAE typedef as a Vector of 2 elements of width <code>WordLength</code>:</p>
+<p>First, we specify the CAE typedef as a Vector of 2 elements of width <code>WordLength</code>:</p>
 </li>
 </ul>
 </div>
@@ -562,7 +562,7 @@ Array based Parallel Hardware Sorters which sorts two inputs to an ascending ord
 <div class="ulist">
 <ul>
 <li>
-<p>Declare the method ActionValue <code>mav_get_sort</code>:</p>
+<p>Then, declare the method ActionValue <code>mav_get_sort</code>:</p>
 </li>
 </ul>
 </div>
@@ -1112,6 +1112,9 @@ Or, add the +bscvcd flag to the <code>v_simulate</code> target in the Makefile
 </div>
 </div>
 <div class="paragraph">
+<p>Total lines of BSV written: 532</p>
+</div>
+<div class="paragraph">
 <p>Which generates the following verilog modules</p>
 </div>
 <div class="literalblock">
@@ -1121,6 +1124,9 @@ Or, add the +bscvcd flag to the <code>v_simulate</code> target in the Makefile
 575 mk_bm8.v
 829 mk_mdsa_bitonic.v</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Total lines of Verilog generated: 1641</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1249,7 +1255,7 @@ new BSV redesign of the MSDA</p>
 <div class="sect2">
 <h3 id="_acknowledgementstodo">Acknowledgements(TODO)</h3>
 <div class="paragraph">
-<p>&lt;reviewers, thanks&gt;</p>
+<p>&lt;reviewers- TODO&gt;</p>
 </div>
 <div class="paragraph">
 <p>The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D guided by my UG Professor Dr. Sudeendra Kumar at PES University, Bangalore.</p>
@@ -1291,7 +1297,7 @@ new BSV redesign of the MSDA</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-01-02 01:31:33 +0530
+Last updated 2025-01-07 20:53:15 +0530
 </div>
 </div>
 </body>

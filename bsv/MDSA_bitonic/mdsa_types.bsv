@@ -49,7 +49,7 @@ typedef enum {
 `ifdef DISPLAY 
     function Action fn_display(Fmt display_statement);
         action
-            $display(display_statement);
+            $display("[%0d]", $time, display_statement);
         endaction
     endfunction
 `else 

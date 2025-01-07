@@ -1,7 +1,7 @@
-= Why I rewrote my Capstone Project in Bluespec SystemVerilog
+== A Compelling Case for using BSV in Academia 
 
 mailto:sai.govardhan@incoresemi.com[Govardhan] | 
- 4th January, 2025
+ <Tentative> January, 2025
 
 [.lead]
 ifdef::backend-html5[]
@@ -52,39 +52,40 @@ endif::[]
 
 == Introduction
 
-This document outlines the motivation for using Bluespec SystemVerilog, which
-provides high levels of abstraction to rapidly design hardware microarchitecture.
+At link:https://incoresemi.com/[InCore], the use of Bluespec SystemVerilog is one of the 
+superpowers that enables small teams like ours to specify complex 
+hardware intuitively, and efficiently. 
 
-Like most undergraduate students, I started out designing initial digital
+Like most undergraduate students, I started out designing my initial digital
 logic in Verilog, with reference to coding guidelines from professors, 
 coursework, and the link:http://www.sunburst-design.com/papers/[sunburst papers].
-Back then, specifying designs dealing with parallelism and concurrency was always a 
-challenge due to lower levels of abstraction and regular rework to fix
-synthesis-simulation mismatches. 
- 
-At link:https://incoresemi.com/[InCore], the use of BSV is one of the 
-superpowers that enables small teams like ours to specify complex 
-hardware intuitively, correctly, and efficiently. 
+Back then, specifying designs dealing with parallelism and concurrency was 
+always a challenging and discouraging due to lower levels of abstraction.
 
-A year ago, as a novice BSV designer, I decided it would be interesting
-and meaningful to contrast the efforts that my team and I spent during our 
-capstone project by re-implementing the Multi-Dimensional Sorting Algorithm (MDSA) 
-in a High-Level HDL - BSV. 
-As an outcome, this blog collates these insights to establish a strong case for teaching
-and using BSV at universities.
+A year ago, as a novice BSV designer, I decided it would be meaningful
+to re-implement the Multi-Dimensional Sorting Algorithm (MDSA) implementation 
+from my capstone project in a High-Level Hardware Description Language - BSV.
 
-In this post, I shall be diving into my BSV implementation by explaining 
-essential parts of the microarchitecture, the ease of specifying them in BSV, 
-and corresponding snippets from the codebase.
+Before addressing the timing and area concerns of this redesign, 
+the focus of this work is to appreciate if the BSV counterpart
+is cycle-level performant, intuitive to understand, and easy to implement.
 
-More of our work on the taxonomy of sorters, low power methodologies, 
-other variants (Hybrid and Odd-Even sorters), and our ASIC implementation results
-can be referred to in our published paper 
+More on the taxonomy of sorters, low power methodologies, 
+other variants (Hybrid and Odd-Even sorters), and ASIC implementation results
+can be referred to in the published paper 
 link:https://ieeexplore.ieee.org/document/10234758[Low Power Multidimensional Sorters using Clock Gating and Index Sorting]. 
 
-My complete MDSA Bitonic Implementation in BSV, along with our legacy 
+My complete MDSA Bitonic Implementation in BSV, along with the legacy 
 Verilog implementation, can be found in my 
 link:https://github.com/govardhnn/Low_Power_Multidimensional_Sorters[GitHub repository].
+
+TLDR; In this blog, we shall:
+
+. Explore the MDSA Algorithm,
+. Use inbuilt BSV Library functions to design an increasing complexity of sorters,
+. Sort 64 elements passed as a 8x8 array in six phases,
+. Discover a 25% reduction in gate-count (121k to 90k) by comparing the legacy 
+Verilog implementation vs the BSV implementation using a simple optimization.
 
 == The Compare And Exchange Block
 
@@ -93,12 +94,12 @@ Array based Parallel Hardware Sorters which sorts two inputs to an ascending ord
 
 image::./img/CAE.png[width=40%,title="The Compare and Exchange (CAE) Block"]
 
-- Specify the CAE typedef as a Vector of 2 elements of width `WordLength`:
+- First, we specify the CAE typedef as a Vector of 2 elements of width `WordLength`:
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=9..9]
 
-- Declare the method ActionValue `mav_get_sort`:
+- Then, declare the method ActionValue `mav_get_sort`:
 
 The CAE block checks if `cae_in[0]` is greater than `cae_in[1]` to swap them.
 
@@ -276,8 +277,7 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=99]
 
 \... and so on for the remaining stages 3 to 6 as per the MDSA Algorithm FSM.
 
-Ultimately, an ideal test case where all 64 inputs specified in descending order:
-
+Ultimately, an ideal test case where all 64 inputs specified in descending order in
 ```
 [MDSA] STARTING MDSA STAGE 1
 [MDSA]: STAGE 1 INPUTS:<V <V 'h00000040 'h0000003f 'h0000003e 'h0000003d 'h0000003c 'h0000003b 'h0000003a 'h00000039  > <V 'h00000038 'h00000037 'h00000036 'h00000035 'h00000034 'h00000033 'h00000032 'h00000031  > <V 'h00000030 'h0000002f 'h0000002e 'h0000002d 'h0000002c 'h0000002b 'h0000002a 'h00000029  > <V 'h00000028 'h00000027 'h00000026 'h00000025 'h00000024 'h00000023 'h00000022 'h00000021  > <V 'h00000020 'h0000001f 'h0000001e 'h0000001d 'h0000001c 'h0000001b 'h0000001a 'h00000019  > <V 'h00000018 'h00000017 'h00000016 'h00000015 'h00000014 'h00000013 'h00000012 'h00000011  > <V 'h00000010 'h0000000f 'h0000000e 'h0000000d 'h0000000c 'h0000000b 'h0000000a 'h00000009  > <V 'h00000008 'h00000007 'h00000006 'h00000005 'h00000004 'h00000003 'h00000002 'h00000001  >  >
@@ -320,7 +320,29 @@ Or, add the +bscvcd flag to the `v_simulate` target in the Makefile
 
 === Observations
 
-. Number of lines of code
+- Does this new design meet the timing specification? 
+
+Given each clock cycle is 10ns (Freq: 100MHz) for this simulation,
+
+Inputs provided to the MDSA at [15ns] 
+
+    [15][MDSA] STARTING MDSA STAGE 1
+    [15][MDSA]: STAGE 1 INPUTS:<V <V 'h00000040 'h0000003f ... 'h00000002 'h00000001  >  >
+
+takes 6 cycles -> 60ns more to complete sorting at [75ns]
+
+    [75][MDSA]: STAGE 1 DONE
+    [75][MDSA]: STAGE 1 OUTPUTS:<V <V 'h00000039 'h0000003a ... 'h00000007 'h00000008  >  >
+
+Taking a dedicated 10ns for the transpose matrix, the complete operation of 
+sorting 64 numbers would take: (70ns x 6) 420ns from the start of the simulation(15ns) which is 435ns. 
+
+    [435][MDSA] DONE. Returning outputs:<V <V 'h00000001 'h00000002 ... 'h0000003f 'h00000040  >  >
+
+Hence, we have proven the timing specification level correctness of this design, let us compare 
+the line-count and gate-count efficiencies.
+
+- How many lines of BSV did this take?
 
 In the BSV implementation of the MDSA
 
@@ -328,6 +350,8 @@ In the BSV implementation of the MDSA
      87 bm4.bsv
     153 bm8.bsv
     246 mdsa_bitonic.bsv
+    
+Total lines of BSV written: 532
 
 Which generates the following verilog modules
 
@@ -336,9 +360,11 @@ Which generates the following verilog modules
     575 mk_bm8.v
     829 mk_mdsa_bitonic.v 
 
+Total lines of Verilog generated: 1641
+
 TIP: You can disable the $display statements from being generated in the verilog generation phase by removing the define `-D DISPLAY` in the Makefile
 
-=== Finally, the Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations 
+=== Finally, the Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations:
 
 NOTE: We shall be using the open-source synthesis tool link:https://github.com/YosysHQ/yosys[Yosys], and the scripts can be found in `bsv/build/synth.ys` and `verilog/MDSA_bitonic/synth.ys`
 
@@ -399,7 +425,7 @@ new BSV redesign of the MSDA
 
 === Acknowledgements(TODO)
 
-<reviewers, thanks>
+<reviewers- TODO>
 
 The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D guided by my UG Professor Dr. Sudeendra Kumar at PES University, Bangalore.
 
