@@ -73,7 +73,7 @@ to re-implement the Multi-Dimensional Sorting Algorithm (MDSA) implementation
 from my capstone project in a High-Level Hardware Description Language - BSV.
 
 Before addressing the timing and area concerns of this redesign, 
-the focus of this work is to appreciate if the BSV counterpart
+the focus of this work is to evaluate if the BSV counterpart
 is cycle-level performant, intuitive to understand, and easy to implement.
 
 More on the taxonomy of sorters, low power methodologies, 
@@ -87,7 +87,7 @@ link:https://github.com/govardhnn/Low_Power_Multidimensional_Sorters[GitHub repo
 
 TLDR; In this blog, we shall:
 
-. Explore the MDSA Algorithm,
+. Understand the Multi-Dimensional Sorting Algorithm,
 . Use inbuilt BSV Library functions to design an increasing complexity of sorters,
 . Sort 64 elements passed as an 8x8 array in six phases,
 . Discover a 25% reduction in gate-count (121k to 90k) by comparing the legacy 
@@ -216,14 +216,20 @@ include::../bsv/MDSA_bitonic/bm8.bsv[lines=64..71]
 
 \... and so on for the remaining stages 4 to 6.
 
-=== The MDSA Algorithm Implementation
+=== The MDSA Implementation
 
-The MDSA algorithm efficiently uses Parallel Hardware Sorter Arrays(PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units 
+image::./img/MDSA.png[width=50%,title="The block diagram of the MDSA Architecture"]
+
+The MDSA's algorithm efficiently uses Parallel Hardware Sorter Arrays(PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units 
 to sort 64 elements in 6 stages by simply alternating between row and column sorting, and rerouting the order of outputs (ascending/descending).
+
+
+==== The MDSA FSM
+
+image::./img/MDSA_FSM.png[width=50%,title="The FSM that implements the MDS-Algorithm"]
 
 Also, now that we are redesigning the MDSA, I desire to implement an optimization where I handle the ascending and descending order of the MDSA inputs at the 
 input of the Parallel Sorting Networks and limit myself to use unidirectional CAE blocks.
-
 
 In the legacy verilog implementation, we had CAE blocks that could support both the directions, and kept the top level simple such that we only transpose between row and column sorting between phases.
 
@@ -234,11 +240,6 @@ there are 8 (Bitonic Networks) * 24 (CAE blocks in each Network) = 192 CAE block
 Let us later look at the gate-count difference to determine how much this optimization has impacted 
 our implementation's area :)
 
-image::./img/MDSA.png[width=50%,title="The block diagram of the MDSA Architecture"]
-
-==== MDSA Algorithm FSM
-
-image::./img/MDSA_FSM.png[width=50%,title="The FSM that implements the MDS-Algorithm"]
 
 We specify the `MDSA_64` type which is a multidimensional 8x8 vector 
 
@@ -260,7 +261,7 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=15..27]
 
 - Sending the inputs to the Eight BM8 sorters:
 
-image::./img/MDSA_FSM_P1.png[width=50%,title="The First Phase of the MDSA Algorithm"]
+image::./img/MDSA_FSM_P1.png[width=50%,title="The First Phase of the MDSA"]
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=40..46]
@@ -282,7 +283,7 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=63]
 
 - Sending the inputs to the Eight BM8 sorters:
 
-image::./img/MDSA_FSM_P2.png[width=50%,title="The Second Phase of the MDSA Algorithm"]
+image::./img/MDSA_FSM_P2.png[width=50%,title="The Second Phase of the MDSA"]
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=71..77]
@@ -297,7 +298,7 @@ include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=84..95]
 [source,BSV]
 include::../bsv/MDSA_bitonic/mdsa_bitonic.bsv[lines=99]
 
-\... and so on for the remaining stages 3 to 6 as per the MDSA Algorithm FSM.
+\... and so on for the remaining stages 3 to 6 as per the MDSA FSM.
 
 Ultimately, an ideal test case where all 64 inputs specified in descending order is:
 

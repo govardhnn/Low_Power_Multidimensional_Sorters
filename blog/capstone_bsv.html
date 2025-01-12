@@ -523,7 +523,7 @@ from my capstone project in a High-Level Hardware Description Language - BSV.</p
 </div>
 <div class="paragraph">
 <p>Before addressing the timing and area concerns of this redesign,
-the focus of this work is to appreciate if the BSV counterpart
+the focus of this work is to evaluate if the BSV counterpart
 is cycle-level performant, intuitive to understand, and easy to implement.</p>
 </div>
 <div class="paragraph">
@@ -543,7 +543,7 @@ Verilog implementation, can be found in my
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Explore the MDSA Algorithm,</p>
+<p>Understand the Multi-Dimensional Sorting Algorithm,</p>
 </li>
 <li>
 <p>Use inbuilt BSV Library functions to design an increasing complexity of sorters,</p>
@@ -840,10 +840,24 @@ for the third stage:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_the_mdsa_algorithm_implementation">The MDSA Algorithm Implementation</h3>
+<h3 id="_the_mdsa_implementation">The MDSA Implementation</h3>
+<div class="imageblock">
+<div class="content">
+<img src="./img/MDSA.png" alt="MDSA" width="50%">
+</div>
+<div class="title">Figure 4. The block diagram of the MDSA Architecture</div>
+</div>
 <div class="paragraph">
-<p>The MDSA algorithm efficiently uses Parallel Hardware Sorter Arrays(PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units
+<p>The MDSA&#8217;s algorithm efficiently uses Parallel Hardware Sorter Arrays(PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units
 to sort 64 elements in 6 stages by simply alternating between row and column sorting, and rerouting the order of outputs (ascending/descending).</p>
+</div>
+<div class="sect3">
+<h4 id="_the_mdsa_fsm">The MDSA FSM</h4>
+<div class="imageblock">
+<div class="content">
+<img src="./img/MDSA_FSM.png" alt="MDSA FSM" width="50%">
+</div>
+<div class="title">Figure 5. The FSM that implements the MDS-Algorithm</div>
 </div>
 <div class="paragraph">
 <p>Also, now that we are redesigning the MDSA, I desire to implement an optimization where I handle the ascending and descending order of the MDSA inputs at the
@@ -868,20 +882,6 @@ our implementation&#8217;s area :)
 </td>
 </tr>
 </table>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="./img/MDSA.png" alt="MDSA" width="50%">
-</div>
-<div class="title">Figure 4. The block diagram of the MDSA Architecture</div>
-</div>
-<div class="sect3">
-<h4 id="_mdsa_algorithm_fsm">MDSA Algorithm FSM</h4>
-<div class="imageblock">
-<div class="content">
-<img src="./img/MDSA_FSM.png" alt="MDSA FSM" width="50%">
-</div>
-<div class="title">Figure 5. The FSM that implements the MDS-Algorithm</div>
 </div>
 <div class="paragraph">
 <p>We specify the <code>MDSA_64</code> type which is a multidimensional 8x8 vector</p>
@@ -932,7 +932,7 @@ our implementation&#8217;s area :)
 <div class="content">
 <img src="./img/MDSA_FSM_P1.png" alt="MDSA FSM P1" width="50%">
 </div>
-<div class="title">Figure 6. The First Phase of the MDSA Algorithm</div>
+<div class="title">Figure 6. The First Phase of the MDSA</div>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1003,7 +1003,7 @@ in BSV to alternate between the row and column sorting between the phases of the
 <div class="content">
 <img src="./img/MDSA_FSM_P2.png" alt="MDSA FSM P2" width="50%">
 </div>
-<div class="title">Figure 7. The Second Phase of the MDSA Algorithm</div>
+<div class="title">Figure 7. The Second Phase of the MDSA</div>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1050,7 +1050,7 @@ in BSV to alternate between the row and column sorting between the phases of the
 </div>
 </div>
 <div class="paragraph">
-<p>... and so on for the remaining stages 3 to 6 as per the MDSA Algorithm FSM.</p>
+<p>... and so on for the remaining stages 3 to 6 as per the MDSA FSM.</p>
 </div>
 <div class="paragraph">
 <p>Ultimately, an ideal test case where all 64 inputs specified in descending order is:</p>
@@ -1389,7 +1389,7 @@ based upon.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-01-12 10:19:04 +0530
+Last updated 2025-01-12 10:28:59 +0530
 </div>
 </div>
 </body>
