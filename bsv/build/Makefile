@@ -15,8 +15,8 @@ V_DIRS = -vdir verilog_dir -bdir build_v -info-dir build_v
 VSIM_EXE = $(TOPMODULE)_vsim
 
 # Disable displays by removing the define DISPLAY
-# DEFINES = "" 
-DEFINES = DISPLAY
+DEFINES = "" 
+# DEFINES = DISPLAY
 
 .PHONY: all_vsim
 all_vsim: clean verilog v_link v_simulate
