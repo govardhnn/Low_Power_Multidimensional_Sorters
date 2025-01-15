@@ -1,12 +1,24 @@
 == CHANGELOG
 
+`[2.0.0] - 5th January, 2023`
+
+Redesign effort of the MDSA - Bitonic Sorter implementation in Bluespec System Verilog
+
+. Collaral to replicate the BSV design(`bsv/`):
+.. Setup to generate verilog using the BSC compiler, 
+.. BSC simulation setup,
+.. Synthesis Scripts using Yosys,
+. Blog [`blog/capstone_bsv.adoc`] to describe the MDSA redesign effort and contrast with the legacy implementation
+
+
 `[1.0.0] - 5th December, 2023`
 
-	Initial Release of all MDSA verilog collateral
-	- Verilog Designs
-		- MDSA (Bitonic, Hybrid, Odd Even) implementations
-		- Index Sorting Implementation of Each 8 input sorter (+ Bitonic Merge Unit level and Bitonic Pipeline level index sorting)
-		- CAE and CAE index implementation
-	- Basic Verilog Testbenches
-	- System Verilog Layered Testbench
-	- Constraints File
+Initial Release of all MDSA verilog collateral
+
+- Verilog Designs
+	- MDSA (Bitonic, Hybrid, Odd Even) implementations
+	- Index Sorting Implementation of Each 8 input sorter (+ Bitonic Merge Unit level and Bitonic Pipeline level index sorting)
+	- CAE and CAE index implementation
+- Basic Verilog Testbenches
+- System Verilog Layered Testbench
+- Constraints File
