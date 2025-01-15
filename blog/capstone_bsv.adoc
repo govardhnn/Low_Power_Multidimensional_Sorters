@@ -60,7 +60,7 @@ Like most undergraduate students, I started out designing my initial digital
 logic in Verilog, with reference to coding guidelines from professors, 
 coursework, and literature.
 Back then, specifying designs dealing with parallelism and concurrency in Verilog was 
-always challenging due to its structural and timing emphasis on thinking "how" the hardware designs look like instead of "what" rules, conditions and invariants need to be specified to ensure correct behavior, leaving the scheduling to the Bluespec compiler.
+always challenging due to its structural and timing emphasis on thinking "how" the hardware designs look like instead of "what" rules, conditions and invariants need to be specified to ensure correct behavior.
 
 For example, implementing a FIFO buffer:
 
@@ -448,7 +448,7 @@ new BSV redesign of the MDSA.
 
 === Acknowledgements
 
-Many thanks to the peers at InCore who provided valuable feedback on early drafts of this blog.
+Many thanks to my peers at InCore who provided valuable feedback on early drafts of this blog.
 
 The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D including myself, guided by our Professor Dr. Sudeendra Kumar at PES University, Bangalore.
 
