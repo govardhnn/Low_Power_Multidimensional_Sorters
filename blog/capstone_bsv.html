@@ -436,14 +436,45 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
+<h1>A Compelling Case for Using BSV in Academia: Insights from Redesigning a Capstone Project</h1>
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_introduction">Introduction</a></li>
+<li><a href="#_designing_the_cae_bm4_bm8_and_mdsa_bitonic_sorters_in_bsv">Designing the CAE, BM4, BM8 and MDSA Bitonic Sorters in BSV</a>
+<ul class="sectlevel2">
+<li><a href="#_the_compare_and_exchange_block">The Compare And Exchange Block</a></li>
+<li><a href="#_the_bitonic_sorting_unit">The Bitonic Sorting Unit</a></li>
+<li><a href="#_the_bm4_sorter">The BM4 sorter</a></li>
+<li><a href="#_the_bm8_sorter">The BM8 sorter</a></li>
+</ul>
+</li>
+<li><a href="#_the_multi_dimensional_sorting_algorithm">The Multi-Dimensional Sorting Algorithm</a>
+<ul class="sectlevel2">
+<li><a href="#_the_mdsa_architecture">The MDSA Architecture</a></li>
+</ul>
+</li>
+<li><a href="#_steps_to_generate_verilog_and_run_simulations_of_the_cae_bm4_bm8_and_mdsa_bitonic">Steps to generate verilog and run simulations of the CAE, BM4, BM8 and MDSA_Bitonic:</a></li>
+<li><a href="#_observations">Observations</a>
+<ul class="sectlevel2">
+<li><a href="#_does_this_new_design_meet_the_timing_specification">Does this new design meet the timing specification?</a></li>
+<li><a href="#_how_many_lines_of_bsv_did_this_take">How many lines of BSV did this take?</a></li>
+<li><a href="#_finally_the_gate_count_comparison">Finally, the Gate-Count Comparison:</a></li>
+</ul>
+</li>
+<li><a href="#_scope_of_future_contributions_to_this_project">Scope of future contributions to this project</a></li>
+<li><a href="#_acknowledgements">Acknowledgements</a></li>
+<li><a href="#_references">References</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_a_compelling_case_for_using_bsv_in_academia_insights_from_redesigning_a_capstone_project">A Compelling Case for Using BSV in Academia: Insights from Redesigning a Capstone Project</h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="mailto:sai.govardhan@incoresemi.com">Govardhan</a> |
- &lt;Tentative&gt; January, 2025</p>
+<p>Author: Sai Govardhan, InCore Semiconductors<br>
+Email: <a href="mailto:sai.govardhan@incoresemi.com">sai.govardhan@incoresemi.com</a><br>
+Date: &lt;Tentative&gt; January, 2025</p>
 </div>
 <style>
 h1, h2, h3, h4, h5, h6, .title, div.title {
@@ -486,6 +517,7 @@ div.title, .imageblock .title, .literalblock .title {
     margin-bottom: 1em;
 }
 </style>
+<div style="page-break-after: always;"></div>
 </div>
 </div>
 <div class="sect1">
@@ -494,17 +526,17 @@ div.title, .imageblock .title, .literalblock .title {
 <div class="paragraph">
 <p>At <a href="https://incoresemi.com/">InCore</a>, the use of Bluespec SystemVerilog (BSV) is one of the
 superpowers that enables small teams like ours to specify complex
-hardware intuitively, and efficiently.</p>
+hardware intuitively and efficiently.</p>
 </div>
 <div class="paragraph">
-<p>Like most undergraduate students, I started out designing my initial digital
+<p>Like most undergraduate students, I started out designing digital
 logic in Verilog, with reference to coding guidelines from professors,
 coursework, and literature.
 Back then, specifying designs dealing with parallelism and concurrency in Verilog was
 always challenging due to its structural and timing emphasis on thinking "how" the hardware designs look like instead of "what" rules, conditions and invariants need to be specified to ensure correct behavior.</p>
 </div>
 <div class="paragraph">
-<p>For example, implementing a FIFO buffer:</p>
+<p>For example, if you had to implement a FIFO buffer:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -519,7 +551,7 @@ always challenging due to its structural and timing emphasis on thinking "how" t
 <div class="paragraph">
 <p>A year ago, as a novice BSV designer at InCore, I decided it would be meaningful
 to re-implement the Multi-Dimensional Sorting Algorithm (MDSA) implementation
-from my capstone project in a High-Level Hardware Description Language - BSV.</p>
+from my B.Tech capstone project in a High-Level Hardware Description Language - BSV.</p>
 </div>
 <div class="paragraph">
 <p>Before addressing the timing and area concerns of this redesign,
@@ -552,16 +584,21 @@ Verilog implementation, can be found in my
 <p>Sort 64 elements passed as an 8x8 array in six phases,</p>
 </li>
 <li>
-<p>Discover a 25% reduction in gate-count (121k to 90k) by comparing the legacy
-Verilog implementation vs the new BSV implementation using a simple optimization.</p>
+<p>Generate verilog, simulate and synthesize the CAE, BM4, BM8 and MDSA Bitonic Sorters,</p>
+</li>
+<li>
+<p>And discover a 25% reduction in gate-count (121k to 90k) by comparing the legacy
+Verilog implementation vs the new BSV implementation using a simple optimization!</p>
 </li>
 </ol>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_the_compare_and_exchange_block">The Compare And Exchange Block</h2>
+<h2 id="_designing_the_cae_bm4_bm8_and_mdsa_bitonic_sorters_in_bsv">Designing the CAE, BM4, BM8 and MDSA Bitonic Sorters in BSV</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_the_compare_and_exchange_block">The Compare And Exchange Block</h3>
 <div class="paragraph">
 <p>The <code>Compare And Exchange</code> (CAE) block is a fundamental building block of Systolic
 Array based Parallel Hardware Sorters which sorts two inputs to an ascending order output.</p>
@@ -628,18 +665,9 @@ here&#8217;s a snippet:</p>
             { mav_get_sort_cae_in[31:0], mav_get_sort_cae_in[63:32] } ;</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Here, the <code>mav_get_sort</code> output will only compare the two 32-bit inputs
-to the sorter, i.e. check if the first input <code>mav_get_sort_cae_in[31:0]</code>
-is less than or equal to the second input <code>mav_get_sort_cae_in[63:32]</code> and
-return the output as <code>mav_get_sort_cae_in</code>, else return the
-ascending order: <code>{ mav_get_sort_cae_in[31:0], mav_get_sort_cae_in[63:32] }</code>.</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_the_bitonic_sorting_unit">The Bitonic Sorting Unit</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_the_bitonic_sorting_unit">The Bitonic Sorting Unit</h3>
 <div class="paragraph">
 <p>The Bitonic Sorting Unit is a network of 24 such CAE blocks, intricately
 arranged as depicted below.</p>
@@ -660,13 +688,13 @@ on systolic array sorting network design by Batcher[4].</p>
 </div>
 <div class="paragraph">
 <p>If you look closely, we can take parts of
-the above BM8 architecture and modularize them.</p>
+the above BM8 architecture and modularize them - let&#8217;s try a BM4 unit.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_the_bm4_sorter">The BM4 sorter</h3>
 <div class="paragraph">
-<p>We could modularize a part of this design, the BM4 unit,
-by creating an intermediate two-stage, four-input sorter,
+<p>The BM4 unit, by creating an intermediate two-stage, four-input sorter,
 and specify the two methods for input and output as follows:</p>
 </div>
 <div class="imageblock">
@@ -703,7 +731,7 @@ and specify the two methods for input and output as follows:</p>
 <ul>
 <li>
 <p>First stage of sorting with the inputs, by routing the inputs at indices
-0 and 3 to CAE-0, and 1 and 2 to CAE-1 block.</p>
+0 and 3 to <code>CAE-0</code>, and 1 and 2 to <code>CAE-1</code> block.</p>
 </li>
 </ul>
 </div>
@@ -732,7 +760,7 @@ We use the inbuilt vector function
 <ul>
 <li>
 <p>Perform the second stage sorting with the intermediate sorted values by routing the pipeline outputs at indices
-0 and 1 to CAE-0, and 2 and 3 to CAE-1 block:</p>
+0 and 1 to <code>CAE-0</code>, and 2 and 3 to <code>CAE-1</code> block:</p>
 </li>
 </ul>
 </div>
@@ -838,33 +866,42 @@ for the third stage:</p>
 <div class="paragraph">
 <p>... and so on for the remaining stages 4 to 6.</p>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_the_mdsa_implementation">The MDSA Implementation</h3>
-<div class="imageblock">
-<div class="content">
-<img src="./img/MDSA.png" alt="MDSA" width="50%">
-</div>
-<div class="title">Figure 4. The block diagram of the MDSA Architecture</div>
-</div>
 <div class="paragraph">
-<p>The MDSA&#8217;s algorithm efficiently uses Parallel Hardware Sorter Arrays(PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units
-to sort 64 elements in 6 stages by simply alternating between row and column sorting, and rerouting the order of outputs (ascending/descending).</p>
+<p>Now that we have designed the BM8 sorter, let us move on to using it for the MDSA.</p>
 </div>
-<div class="sect3">
-<h4 id="_the_mdsa_fsm">The MDSA FSM</h4>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_multi_dimensional_sorting_algorithm">The Multi-Dimensional Sorting Algorithm</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>MDSA is used to sort data represented in the form of an N-dimensional matrix based on an FSM that alternates between row and column sorting in each phase. For an 8x8 matrix, the MDSA sorts 64 elements in 6 stages as per the following FSM:</p>
+</div>
 <div class="imageblock">
 <div class="content">
 <img src="./img/MDSA_FSM.png" alt="MDSA FSM" width="50%">
 </div>
-<div class="title">Figure 5. The FSM that implements the MDS-Algorithm</div>
+<div class="title">Figure 4. The FSM that implements the MDSA</div>
+</div>
+<div class="sect2">
+<h3 id="_the_mdsa_architecture">The MDSA Architecture</h3>
+<div class="paragraph">
+<p>The MDSA implementation can efficiently use Parallel Hardware Sorter Arrays(PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units
+to sort 64 elements (8x8) in 6 stages by simply alternating between row and column sorting, and rerouting the order of outputs (ascending/descending). Following is a block diagram of the MDSA architecture:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./img/MDSA.png" alt="MDSA" width="50%">
+</div>
+<div class="title">Figure 5. The block diagram of the MDSA Architecture</div>
 </div>
 <div class="paragraph">
 <p>Also, now that we are redesigning the MDSA, I desire to implement an optimization where I handle the ascending and descending order of the MDSA inputs at the
-input of the Parallel Sorting Networks and limit myself to use unidirectional CAE blocks.</p>
+input of the Parallel Sorting Networks and limit myself to using unidirectional CAE blocks.</p>
 </div>
 <div class="paragraph">
-<p>In the legacy verilog implementation, we had CAE blocks that could support both the directions, and kept the top level simple such that we only transpose between row and column sorting between phases.</p>
+<p>Note that in the legacy verilog implementation, we had CAE blocks that could support both the directions to simplify the top-level transpose matrix.</p>
 </div>
 <div class="admonitionblock important">
 <table>
@@ -873,10 +910,10 @@ input of the Parallel Sorting Networks and limit myself to use unidirectional CA
 <div class="title">Important</div>
 </td>
 <td class="content">
-The reason why I choose to keep the CAEs simple is because selecting between the ascending
+The reason why I choose to keep the CAEs simple in the new BSV implementation is because selecting between the ascending
 and descending increases the number of multiplexors in each CAE block,
 and in the MDSA sorter,
-there are 8 (Bitonic Networks) * 24 (CAE blocks in each Network) = 192 CAE blocks which is indeed substantial!
+there are 8 (Bitonic Networks) * 24 (CAE blocks in each Network) = 192 CAE blocks which is indeed substantial!<br>
 Let us later look at the gate-count difference to determine how much this optimization has impacted
 our implementation&#8217;s area :)
 </td>
@@ -916,7 +953,6 @@ our implementation&#8217;s area :)
             bm8[6].ma_get_inputs(mdsa_in[6]);
             bm8[7].ma_get_inputs(mdsa_in[7]);
         endaction</code></pre>
-</div>
 </div>
 </div>
 <div class="sect3">
@@ -1072,8 +1108,11 @@ Verilog simulation finished</code></pre>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_steps_to_generate_verilog_and_run_simulations_of_the_cae_bm4_bm8_and_mdsa_bitonic_in_the_github_repository">Steps to generate verilog and run simulations of the CAE, BM4, BM8 and MDSA_Bitonic in the GitHub Repository</h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_steps_to_generate_verilog_and_run_simulations_of_the_cae_bm4_bm8_and_mdsa_bitonic">Steps to generate verilog and run simulations of the CAE, BM4, BM8 and MDSA_Bitonic:</h2>
+<div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1135,15 +1174,12 @@ Or, add the +bscvcd flag to the <code>v_simulate</code> target in the Makefile
 </table>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_observations">Observations</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Does this new design meet the timing specification?</p>
-</li>
-</ul>
 </div>
+<div class="sect1">
+<h2 id="_observations">Observations</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_does_this_new_design_meet_the_timing_specification">Does this new design meet the timing specification?</h3>
 <div class="paragraph">
 <p>Given each clock cycle is 10ns (Freq: 100MHz) for this simulation,</p>
 </div>
@@ -1178,13 +1214,9 @@ sorting 64 numbers would take: (70ns x 6) 420ns from the start of the simulation
 <p>Hence, we have proven the timing specification level correctness of this design, let us compare
 the line-count and gate-count efficiencies.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>How many lines of BSV did this take?</p>
-</li>
-</ul>
 </div>
+<div class="sect2">
+<h3 id="_how_many_lines_of_bsv_did_this_take">How many lines of BSV did this take?</h3>
 <div class="paragraph">
 <p>In the BSV implementation of the MDSA</p>
 </div>
@@ -1227,7 +1259,7 @@ You can disable the $display statements from being generated in the verilog gene
 </div>
 </div>
 <div class="sect2">
-<h3 id="_finally_the_gate_count_comparison_of_the_legacy_verilog_mdsa_vs_the_new_bsv_mdsa_implementations">Finally, the Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations:</h3>
+<h3 id="_finally_the_gate_count_comparison">Finally, the Gate-Count Comparison:</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1318,8 +1350,11 @@ Number of cells:              90410</pre>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_scope_of_future_contribution_to_this_project">Scope of future contribution to this project</h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_scope_of_future_contributions_to_this_project">Scope of future contributions to this project</h2>
+<div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
@@ -1338,8 +1373,10 @@ new BSV redesign of the MDSA.</p>
 </ul>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_acknowledgements">Acknowledgements</h3>
+</div>
+<div class="sect1">
+<h2 id="_acknowledgements">Acknowledgements</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>Many thanks to my peers at InCore who provided valuable feedback on early drafts of this blog.</p>
 </div>
@@ -1347,8 +1384,7 @@ new BSV redesign of the MDSA.</p>
 <p>The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D including myself, guided by our Professor Dr. Sudeendra Kumar at PES University, Bangalore.</p>
 </div>
 <div class="paragraph">
-<p>Initial Work on MDSA[5] and PHSA sorter variants[6] have been the guiding light for the
-theory that has led to the innovation in the field of hardware sorting.</p>
+<p>Initial work on MDSA[5] and PHSA sorter variants[6] have been the guiding light for the innovation in hardware sorting.</p>
 </div>
 <div class="paragraph">
 <p>The BSV language compiler [2] and libraries reference guide from Bluespec(inc)
@@ -1356,8 +1392,10 @@ are the resources that have helped realize the superpower(BSV) that this blog is
 based upon.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_references">References</h3>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1386,10 +1424,9 @@ based upon.</p>
 </div>
 </div>
 </div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-01-15 17:06:29 +0530
+Last updated 2025-01-22 19:46:26 +0530
 </div>
 </div>
 </body>

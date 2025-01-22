@@ -1,7 +1,10 @@
-== A Compelling Case for Using BSV in Academia: Insights from Redesigning a Capstone Project
+= A Compelling Case for Using BSV in Academia: Insights from Redesigning a Capstone Project
 
-mailto:sai.govardhan@incoresemi.com[Govardhan] | 
- <Tentative> January, 2025
+
+Author: Sai Govardhan, InCore Semiconductors +
+Email: mailto:sai.govardhan@incoresemi.com[sai.govardhan@incoresemi.com] +  
+Date: <Tentative> January, 2025
+
 
 [.lead]
 ifdef::backend-html5[]
@@ -50,19 +53,23 @@ div.title, .imageblock .title, .literalblock .title {
 ++++
 endif::[]
 
+:toc:
+:toclevels: 4
+
+<<< 
 == Introduction
 
 At link:https://incoresemi.com/[InCore], the use of Bluespec SystemVerilog (BSV) is one of the 
 superpowers that enables small teams like ours to specify complex 
-hardware intuitively, and efficiently. 
+hardware intuitively and efficiently. 
 
-Like most undergraduate students, I started out designing my initial digital
+Like most undergraduate students, I started out designing digital
 logic in Verilog, with reference to coding guidelines from professors, 
 coursework, and literature.
 Back then, specifying designs dealing with parallelism and concurrency in Verilog was 
 always challenging due to its structural and timing emphasis on thinking "how" the hardware designs look like instead of "what" rules, conditions and invariants need to be specified to ensure correct behavior.
 
-For example, implementing a FIFO buffer:
+For example, if you had to implement a FIFO buffer:
 
 - In Verilog, you'd think about the enqueue/dequeue timing, full/empty flags, and explicitly manage the read/write pointers.
 
@@ -70,7 +77,7 @@ For example, implementing a FIFO buffer:
 
 A year ago, as a novice BSV designer at InCore, I decided it would be meaningful
 to re-implement the Multi-Dimensional Sorting Algorithm (MDSA) implementation 
-from my capstone project in a High-Level Hardware Description Language - BSV.
+from my B.Tech capstone project in a High-Level Hardware Description Language - BSV.
 
 Before addressing the timing and area concerns of this redesign, 
 the focus of this work is to evaluate if the BSV counterpart
@@ -90,10 +97,13 @@ TLDR; In this blog, we shall:
 . Understand the Multi-Dimensional Sorting Algorithm,
 . Use inbuilt BSV Library functions to design an increasing complexity of sorters,
 . Sort 64 elements passed as an 8x8 array in six phases,
-. Discover a 25% reduction in gate-count (121k to 90k) by comparing the legacy 
-Verilog implementation vs the new BSV implementation using a simple optimization.
+. Generate verilog, simulate and synthesize the CAE, BM4, BM8 and MDSA Bitonic Sorters,
+. And discover a 25% reduction in gate-count (121k to 90k) by comparing the legacy 
+Verilog implementation vs the new BSV implementation using a simple optimization!
 
-== The Compare And Exchange Block
+== Designing the CAE, BM4, BM8 and MDSA Bitonic Sorters in BSV
+
+=== The Compare And Exchange Block
 
 The `Compare And Exchange` (CAE) block is a fundamental building block of Systolic 
 Array based Parallel Hardware Sorters which sorts two inputs to an ascending order output.
@@ -124,14 +134,8 @@ here's a snippet:
             { mav_get_sort_cae_in[31:0], mav_get_sort_cae_in[63:32] } ;
 ```
 
-Here, the `mav_get_sort` output will only compare the two 32-bit inputs
-to the sorter, i.e. check if the first input `mav_get_sort_cae_in[31:0]`
-is less than or equal to the second input `mav_get_sort_cae_in[63:32]` and 
-return the output as `mav_get_sort_cae_in`, else return the
-ascending order: `{ mav_get_sort_cae_in[31:0], mav_get_sort_cae_in[63:32] }`.
 
-
-== The Bitonic Sorting Unit
+=== The Bitonic Sorting Unit
 
 The Bitonic Sorting Unit is a network of 24 such CAE blocks, intricately 
 arranged as depicted below. 
@@ -145,12 +149,11 @@ To read more about the Bitonic Sorting Network, refer to the seminal paper
 on systolic array sorting network design by Batcher[4].
 
 If you look closely, we can take parts of
-the above BM8 architecture and modularize them. 
+the above BM8 architecture and modularize them - let's try a BM4 unit. 
 
 === The BM4 sorter
 
-We could modularize a part of this design, the BM4 unit,
-by creating an intermediate two-stage, four-input sorter,
+The BM4 unit, by creating an intermediate two-stage, four-input sorter,
 and specify the two methods for input and output as follows:
 
 image::./img/BM4.png[width=10%,title="The BM4 sorter Network"]
@@ -166,7 +169,7 @@ include::../bsv/MDSA_bitonic/mdsa_types.bsv[lines=11]
 include::../bsv/MDSA_bitonic/bm4.bsv[lines=59]
 
 - First stage of sorting with the inputs, by routing the inputs at indices
-0 and 3 to CAE-0, and 1 and 2 to CAE-1 block. 
+0 and 3 to `CAE-0`, and 1 and 2 to `CAE-1` block. 
 
 TIP: We use the inbuilt vector function
 `vec` to combine multiple elements into a vector:
@@ -175,7 +178,7 @@ TIP: We use the inbuilt vector function
 include::../bsv/MDSA_bitonic/bm4.bsv[lines=68..71]
 
 - Perform the second stage sorting with the intermediate sorted values by routing the pipeline outputs at indices
-0 and 1 to CAE-0, and 2 and 3 to CAE-1 block:
+0 and 1 to `CAE-0`, and 2 and 3 to `CAE-1` block:
 
 [source,BSV]
 include::../bsv/MDSA_bitonic/bm4.bsv[lines=79..80]
@@ -216,27 +219,31 @@ include::../bsv/MDSA_bitonic/bm8.bsv[lines=64..71]
 
 \... and so on for the remaining stages 4 to 6.
 
-=== The MDSA Implementation
+Now that we have designed the BM8 sorter, let us move on to using it for the MDSA.
+
+== The Multi-Dimensional Sorting Algorithm
+
+MDSA is used to sort data represented in the form of an N-dimensional matrix based on an FSM that alternates between row and column sorting in each phase. For an 8x8 matrix, the MDSA sorts 64 elements in 6 stages as per the following FSM:
+
+image::./img/MDSA_FSM.png[width=50%,title="The FSM that implements the MDSA"]
+
+=== The MDSA Architecture
+
+The MDSA implementation can efficiently use Parallel Hardware Sorter Arrays(PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units 
+to sort 64 elements (8x8) in 6 stages by simply alternating between row and column sorting, and rerouting the order of outputs (ascending/descending). Following is a block diagram of the MDSA architecture:
 
 image::./img/MDSA.png[width=50%,title="The block diagram of the MDSA Architecture"]
 
-The MDSA's algorithm efficiently uses Parallel Hardware Sorter Arrays(PHSAs) like the Bitonic sorter we earlier designed to specify an architecture that uses eight such units 
-to sort 64 elements in 6 stages by simply alternating between row and column sorting, and rerouting the order of outputs (ascending/descending).
-
-
-==== The MDSA FSM
-
-image::./img/MDSA_FSM.png[width=50%,title="The FSM that implements the MDS-Algorithm"]
 
 Also, now that we are redesigning the MDSA, I desire to implement an optimization where I handle the ascending and descending order of the MDSA inputs at the 
-input of the Parallel Sorting Networks and limit myself to use unidirectional CAE blocks.
+input of the Parallel Sorting Networks and limit myself to using unidirectional CAE blocks.
 
-In the legacy verilog implementation, we had CAE blocks that could support both the directions, and kept the top level simple such that we only transpose between row and column sorting between phases.
+Note that in the legacy verilog implementation, we had CAE blocks that could support both the directions to simplify the top-level transpose matrix.
 
-IMPORTANT: The reason why I choose to keep the CAEs simple is because selecting between the ascending
+IMPORTANT: The reason why I choose to keep the CAEs simple in the new BSV implementation is because selecting between the ascending
 and descending increases the number of multiplexors in each CAE block, 
 and in the MDSA sorter,
-there are 8 (Bitonic Networks) * 24 (CAE blocks in each Network) = 192 CAE blocks which is indeed substantial! 
+there are 8 (Bitonic Networks) * 24 (CAE blocks in each Network) = 192 CAE blocks which is indeed substantial! + 
 Let us later look at the gate-count difference to determine how much this optimization has impacted 
 our implementation's area :)
 
@@ -314,7 +321,7 @@ Final MDSA output: <%h><V <V 'h00000001 'h00000002 'h00000003 'h00000004 'h00000
 Verilog simulation finished
 ```
 
-=== Steps to generate verilog and run simulations of the CAE, BM4, BM8 and MDSA_Bitonic in the GitHub Repository
+== Steps to generate verilog and run simulations of the CAE, BM4, BM8 and MDSA_Bitonic:
 
 . Clone the repository:
 
@@ -340,9 +347,9 @@ NOTE: To get a vcd dump of the simulation, rerun the executable with the +bscvcd
 E.g.  ./mk_mdsa_bitonic_testbench_vsim +bscvcd
 Or, add the +bscvcd flag to the `v_simulate` target in the Makefile
 
-=== Observations
+== Observations
 
-- Does this new design meet the timing specification? 
+=== Does this new design meet the timing specification? 
 
 Given each clock cycle is 10ns (Freq: 100MHz) for this simulation,
 
@@ -364,7 +371,7 @@ sorting 64 numbers would take: (70ns x 6) 420ns from the start of the simulation
 Hence, we have proven the timing specification level correctness of this design, let us compare 
 the line-count and gate-count efficiencies.
 
-- How many lines of BSV did this take?
+=== How many lines of BSV did this take?
 
 In the BSV implementation of the MDSA
 
@@ -386,7 +393,7 @@ Total lines of Verilog generated: 1641
 
 TIP: You can disable the $display statements from being generated in the verilog generation phase by removing the define `-D DISPLAY` in the Makefile
 
-=== Finally, the Gate-Count Comparison of the legacy Verilog MDSA vs the new BSV MDSA implementations:
+=== Finally, the Gate-Count Comparison:
 
 NOTE: We shall be using the open-source synthesis tool link:https://github.com/YosysHQ/yosys[Yosys], and the scripts can be found in `bsv/build/synth.ys` and `verilog/MDSA_bitonic/synth.ys`
 
@@ -435,7 +442,7 @@ And the synthesis gate count is:
 
 _There you go! A reduction in gate-count from *121k* to *90k*._ A staggering *25%* reduction in the total number of cells.
 
-=== Scope of future contribution to this project
+== Scope of future contributions to this project
 
 - Implementing the Hybrid and Odd Even Sorter designs in BSV - which is pretty fun and replicable looking at the current BSV implementation of the Bitonic Sorter and referring to papers [4] and [6].
 
@@ -446,20 +453,19 @@ new BSV redesign of the MDSA.
 
 - Understand the generated verilog from each module in BSV, and try to find scope for optimizing area and timing.
 
-=== Acknowledgements
+== Acknowledgements
 
 Many thanks to my peers at InCore who provided valuable feedback on early drafts of this blog.
 
 The block diagrams and drawings to aid the explanation of the CAE, Bitonic and MDSA are from the paper[1], and the legacy Verilog codebase from the team Samahith S A, Manogna R, Hitesh D including myself, guided by our Professor Dr. Sudeendra Kumar at PES University, Bangalore.
 
-Initial Work on MDSA[5] and PHSA sorter variants[6] have been the guiding light for the
-theory that has led to the innovation in the field of hardware sorting. 
+Initial work on MDSA[5] and PHSA sorter variants[6] have been the guiding light for the innovation in hardware sorting. 
 
 The BSV language compiler [2] and libraries reference guide from Bluespec(inc)
 are the resources that have helped realize the superpower(BSV) that this blog is
 based upon. 
 
-=== References
+== References
 
 1. link:https://ieeexplore.ieee.org/document/10234758["Low Power Multidimensional Sorters using Clock Gating and Index Sorting." 2023 IEEE International Conference on Electronics, Computing and Communication Technologies (CONECCT)]
 2. link:https://github.com/B-Lang-org/bsc[The Bluespec Compiler(bsc)]

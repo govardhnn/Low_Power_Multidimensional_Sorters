@@ -1,9 +1,9 @@
 all: pdf html
 
 pdf:
-	asciidoctor-pdf *.adoc
+	asciidoctor-pdf -a toc *.adoc
 
 html:
-	asciidoctor *.adoc
+	asciidoctor -a toc *.adoc
 
 .PHONY: all pdf html
