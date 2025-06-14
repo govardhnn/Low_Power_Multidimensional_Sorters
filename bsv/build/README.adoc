@@ -12,3 +12,11 @@ Note that once built, you can manually copy the required .v files to a separate 
 ├── *_vsim                  # Compiled testbench executable for the selected version of MDSA using iverilog
 └── verilog_dir             # BSV synthesized verilog collateral for the selected MDSA design
 ```
+
+To generate the VCD Dump of the simulation binary, use the flag +bscvcd
+
+Example:
+
+``` verilog
+./mk_mdsa_bitonic_testbench_vsim +bscvcd
+```
